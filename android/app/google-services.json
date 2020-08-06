@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "891747363552",
+    "firebase_url": "https://mtgmoe-app.firebaseio.com",
+    "project_id": "mtgmoe-app",
+    "storage_bucket": "mtgmoe-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:891747363552:android:860a03b7a0e3a29e0c3e85",
+        "android_client_info": {
+          "package_name": "moe.karpador.mtgmoe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "891747363552-opqk577lgs9shjo3ao5konq48fd0t9fi.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCkv_M3R5w11A6CEjWxIR1wMQ7RFvmH29E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "891747363552-opqk577lgs9shjo3ao5konq48fd0t9fi.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
