@@ -1,7 +1,6 @@
 import 'dart:io';
 
-import 'package:MTGMoe/model/mtg_set.dart';
-import 'file:///C:/Users/jdiem/IdeaProjects/mtgmoe/lib/mtg_db.dart';
+import 'package:MTGMoe/mtg_db.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'dart:convert';
@@ -12,6 +11,7 @@ import 'package:http/http.dart' as http;
 import 'package:MTGMoe/moe_style.dart';
 import 'package:MTGMoe/model/mtg_card.dart';
 import 'package:MTGMoe/model/app_state_model.dart';
+import 'package:MTGMoe/model/mtg_set.dart';
 
 class SettingsTab extends StatefulWidget {
   @override

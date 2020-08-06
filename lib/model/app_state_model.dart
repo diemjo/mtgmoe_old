@@ -1,8 +1,8 @@
-import 'file:///C:/Users/jdiem/IdeaProjects/mtgmoe/lib/mtg_db.dart';
 import 'package:flutter/foundation.dart';
 
 import 'package:MTGMoe/model/mtg_set.dart';
 import 'package:MTGMoe/model/mtg_card.dart';
+import 'package:MTGMoe/mtg_db.dart';
 
 enum UpdateStatus {
   DEFAULT,
