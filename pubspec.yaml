@@ -24,7 +24,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  flutter_platform_widgets: ^0.51.0
+  flutter_platform_widgets: ^0.60.1
   provider: ^4.3.1
   http: ^0.12.2
   sqflite: ^1.3.1
