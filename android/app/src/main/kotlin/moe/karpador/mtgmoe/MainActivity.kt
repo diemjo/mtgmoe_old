@@ -1,4 +1,4 @@
-package com.example.mtgmoe
+package moe.karpador.mtgmoe
 
 import io.flutter.embedding.android.FlutterActivity
 
