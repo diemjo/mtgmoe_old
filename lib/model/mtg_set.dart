@@ -30,8 +30,10 @@ class MTGSet {
   @JsonKey(name: 'search_uri')
   String searchURI;
 
+  bool digital;
+
   MTGSet({this.code, this.name, this.cardCount, this.setType,
-      this.releasedAt, this.blockCode, this.block, this.iconScvURI, this.searchURI});
+      this.releasedAt, this.blockCode, this.block, this.iconScvURI, this.searchURI, this.digital});
 
   factory MTGSet.fromJson(Map<String, dynamic> json) => _$MTGSetFromJson(json);
   Map<String, dynamic> toJson() => _$MTGSetToJson(this);
@@ -39,7 +41,6 @@ class MTGSet {
   Map<String, dynamic> toMap() => MTGSetHelper.toMap(this);
 
   static DateTime dateFromJson(dynamic json) {
-    print(json);
     return DateTime.parse(json);
   }
 
@@ -60,6 +61,7 @@ class MTGSetHelper {
       'block': set.block,
       'iconScvURI': set.iconScvURI,
       'searchURI': set.searchURI,
+      'digital': set.digital ? 1 : 0,
     };
   }
 
@@ -74,6 +76,7 @@ class MTGSetHelper {
       block: map['block'],
       iconScvURI: map['iconScvURI'],
       searchURI: map['searchURI'],
+      digital: map['digital'] == 1,
     );
   }
 }

@@ -47,12 +47,23 @@ dev_dependencies:
     sdk: flutter
   json_serializable: ^3.3.0
   build_runner: ^1.0.0
-  flutter_launcher_icons: "^0.7.3"
+  flutter_launcher_icons: ^0.7.5
+  flutter_native_splash: ^0.1.9
+
+dependency_overrides:
+  analyzer: '0.39.14'
 
 flutter_icons:
   android: "launcher_icon"
   ios: true
-  image_path: "images/icon/launcher_icon.png"
+  image_path_android: "images/icon/launcher_icon.png"
+  image_path_ios: "images/icon/launcher_icon_ios.png"
+  adaptive_icon_foreground: "images/icon/launcher_icon_android.png"
+  adaptive_icon_background: "images/icon/launcher_background.png"
+
+flutter_native_splash:
+  image: "images/mtgmoe-logo-2x.png"
+  color: "222222"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

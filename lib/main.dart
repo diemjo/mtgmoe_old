@@ -1,5 +1,5 @@
-
 import 'package:MTGMoe/moe_style.dart';
+import 'package:MTGMoe/mtg_db.dart';
 import 'package:flutter/cupertino.dart'
     show
     CupertinoActionSheet,
@@ -26,7 +26,10 @@ import 'tabs/cards_tab.dart';
 import 'tabs/settings_tab.dart';
 import 'model/app_state_model.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await MTGDB.loadSets();
+  //await MTGDB.loadCards();
   runApp(
     ChangeNotifierProvider<AppStateModel>(
       create: (_) => AppStateModel(),
@@ -153,13 +156,12 @@ class _LandingPageState extends State<LandingPage> {
 
   @override
   Widget build(BuildContext context) {
-    Provider.of<AppStateModel>(context).loadData();
     return PlatformTabScaffold(
       iosContentPadding: true,
       tabController: _tabController,
       bodyBuilder: _contentBuilder,
       items: _items(context),
-      pageBackgroundColor: Color(0xff222222),
+      pageBackgroundColor: MoeStyle.defaultAppColor,
       materialTabs: (context, platform) {
         return MaterialNavBarData(selectedItemColor: MoeStyle.navigationBarIconColorActive);
       },
