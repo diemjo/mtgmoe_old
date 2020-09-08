@@ -24,8 +24,8 @@ class MTGSet {
   @JsonKey(nullable: true)
   String block;
 
-  @JsonKey(name: 'icon_scv_uri')
-  String iconScvURI;
+  @JsonKey(name: 'icon_svg_uri')
+  String iconSvgURI;
 
   @JsonKey(name: 'search_uri')
   String searchURI;
@@ -33,7 +33,7 @@ class MTGSet {
   bool digital;
 
   MTGSet({this.code, this.name, this.cardCount, this.setType,
-      this.releasedAt, this.blockCode, this.block, this.iconScvURI, this.searchURI, this.digital});
+      this.releasedAt, this.blockCode, this.block, this.iconSvgURI, this.searchURI, this.digital});
 
   factory MTGSet.fromJson(Map<String, dynamic> json) => _$MTGSetFromJson(json);
   Map<String, dynamic> toJson() => _$MTGSetToJson(this);
@@ -59,7 +59,7 @@ class MTGSetHelper {
       'releasedAt': set.releasedAt != null ? '${set.releasedAt.year}-${set.releasedAt.month >= 10 ? '' : '0'}${set.releasedAt.month}-${set.releasedAt.day >= 10 ? '' : '0' }${set.releasedAt.day}' : null,
       'blockCode': set.blockCode,
       'block': set.block,
-      'iconScvURI': set.iconScvURI,
+      'iconSvgURI': set.iconSvgURI,
       'searchURI': set.searchURI,
       'digital': set.digital ? 1 : 0,
     };
@@ -74,7 +74,7 @@ class MTGSetHelper {
       releasedAt: DateTime.parse(map['releasedAt'] as String),
       blockCode: map['blockCode'],
       block: map['block'],
-      iconScvURI: map['iconScvURI'],
+      iconSvgURI: map['iconSvgURI'],
       searchURI: map['searchURI'],
       digital: map['digital'] == 1,
     );

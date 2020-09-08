@@ -1,11 +1,15 @@
+import 'package:MTGMoe/routes/settings_sets.dart';
+import 'package:MTGMoe/util/settings_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:provider/provider.dart';
 
 import 'package:MTGMoe/moe_style.dart';
 import 'package:MTGMoe/model/app_state_model.dart';
 import 'package:MTGMoe/mtg_db.dart';
 import 'package:MTGMoe/util/card_update.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsTab extends StatefulWidget {
   @override
@@ -24,14 +28,13 @@ class _SettingsTabState extends State<SettingsTab> {
   @override
   void initState() {
     super.initState();
-    print("Settings init");
+    //print("Settings init");
   }
 
 
   @override
   void dispose() {
-    print("Settings dispose");
-    MTGDB.closeDB();
+    //print("Settings dispose");
     super.dispose();
   }
 
@@ -55,7 +58,7 @@ class _SettingsTabState extends State<SettingsTab> {
 
   @override
   Widget build(BuildContext context) {
-    print("Settings build");
+    //print("Settings build");
     return SafeArea(
       child: Consumer<AppStateModel>(
         builder: (context, model, child) {
@@ -77,7 +80,78 @@ class _SettingsTabState extends State<SettingsTab> {
                 ),
               ),
               _buildUpdateInfo(context, model),
-              Divider(color: Color(0xffffffff)),
+              Divider(color: MoeStyle.defaultDecorationColor),
+              settingRow(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('Show only official sets', style: MoeStyle.defaultText),
+                      ),
+                    ),
+                    PlatformSwitch(
+                      value: MTGDB.officialSetsOnly,
+                      onChanged: (val) { setState(() {
+                        MTGDB.officialSetsOnly = !MTGDB.officialSetsOnly;
+                        SharedPreferences.getInstance().then((prefs) => prefs.setBool('show_only_official_sets', MTGDB.officialSetsOnly));
+                        MTGDB.invalidate();
+                      }); },
+                    )
+                  ],
+                ),
+              ),
+              settingRow(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Text('Show expansions only', style: MoeStyle.defaultText),
+                      ),
+                    ),
+                    PlatformSwitch(
+                      value: MTGDB.expansionsOnly,
+                      onChanged: (val) { setState(() {
+                        MTGDB.expansionsOnly = !MTGDB.expansionsOnly;
+                        SharedPreferences.getInstance().then((prefs) => prefs.setBool('show_expansions_only', MTGDB.expansionsOnly));
+                        MTGDB.invalidate();
+                      }); },
+                    )
+                  ],
+                ),
+              ),
+              settingRow(
+                child: MaterialButton(
+                  splashColor: Colors.transparent,
+                  color: Colors.transparent,
+                  elevation: 0,
+                  padding: const EdgeInsets.all(0),
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      PageRouteBuilder(
+                        pageBuilder: (context, animation, secondaryAnimation) => SettingsSetTypes(),
+                        transitionsBuilder: (context, animation, secondaryAnimation, child) => SlideTransition(
+                          child: child,
+                          position: animation.drive(Tween(begin: Offset(1.0, 0.0), end: Offset.zero)),
+                        ),
+                        transitionDuration: Duration(milliseconds: 100)
+                      )
+                    );
+                  },
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Card set types', style: MoeStyle.defaultText),
+                        ),
+                      ),
+                      Icon(Icons.arrow_forward_ios, color: MoeStyle.defaultIconColor),
+                    ],
+                  ),
+                )
+              ),
             ],
           );
         },
@@ -136,7 +210,7 @@ class _SettingsTabState extends State<SettingsTab> {
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text('Updating sets'),
+                    Text('Updating'),
                   ],
                 );
               }
@@ -144,7 +218,7 @@ class _SettingsTabState extends State<SettingsTab> {
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Text('Updating set: ${snapshot.data['set'] as String}'),
+                    Text('Updating: ${snapshot.data['set'] as String}'),
                     CircularProgressIndicator(value: snapshot.data['progress'] as double)
                   ],
                 );

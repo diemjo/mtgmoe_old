@@ -1,24 +1,31 @@
-import 'package:MTGMoe/util/order.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'package:MTGMoe/model/mtg_card.dart';
-import 'package:MTGMoe/model/mtg_set.dart';
-import 'package:MTGMoe/util/filter.dart';
+import 'package:MTGMoe/model/filter.dart';
+import 'package:MTGMoe/model/order.dart';
+import 'package:MTGMoe/model/card/mtg_card.dart';
+import 'package:MTGMoe/model/card/mtg_set.dart';
 
 class MTGDB {
   static Future<Database> get _database => _openDB();
   static Database database;
 
   static CardFilter _filter = CardFilter();
-  static CardOrder _order = CardOrder(type1: OrderType.DATE_DESC, type2: OrderType.RARITY_DESC, type3: OrderType.NUMBER_ASC);
+  static CardOrder _order = CardOrder(OrderType.DATE_DESC, OrderType.RARITY_DESC, OrderType.NUMBER_ASC, OrderType.CMC_DESC, OrderType.NAME_ASC);
 
-  static List<MTGCard> _cards;
+  static List<List<String>> _cards;
   static List<MTGSet> _sets;
 
-  static Future<List<MTGCard>> loadCards({CardFilter filter, CardOrder order}) async {
+  static bool officialSetsOnly;
+  static bool expansionsOnly;
+
+  static void invalidate() {
+    _cards = null;
+    _sets = null;
+  }
+
+  static Future<List<List<String>>> loadCardIds({CardFilter filter, CardOrder order}) async {
     if (_cards==null || (filter!=null && _filter!=filter) || (order!=null && _order!=order)) {
-      print("refreshing cards");
       _cards = null;
       if (order != null) {
         _order = new CardOrder.fromOrder(order);
@@ -29,13 +36,22 @@ class MTGDB {
       Database db = await _database;
       List<Map<String, dynamic>> maps = await createCardQuery(db, _filter, _order);
       print(maps.length);
-      _cards = maps.map((e) => MTGCard.fromMap(e)).toList();
-      print("refreshed cards");
+      _cards = maps.map((e) => [e['id'] as String, e['name'] as String]).toList();
       return _cards;
     }
     else {
       return _cards;
     }
+  }
+
+  static Future<MTGCard> loadCard(String id) async {
+    Database db = await _database;
+    List<Map<String, dynamic>> maps = await db.query('mtg_cards', where: 'id = ?', whereArgs: [id]);
+    if (maps.length>0) {
+      return MTGCard.fromMap(maps[0]);
+    }
+    else
+      return null;
   }
 
   static Future<List<MTGSet>> loadSets() async {
@@ -45,6 +61,12 @@ class MTGDB {
       _sets = maps.map((e) => MTGSet.fromMap(e)).toList();
     }
     return _sets;
+  }
+
+  static Future<List<String>> loadSetTypes() async {
+    final Database db = await _database;
+    final List<Map<String, dynamic>> maps = await db.query('mtg_sets', columns: ['setType'], distinct: true);
+    return maps.map((e) => e['setType'] as String).toList(growable: false);
   }
 
   static Future<void> saveCards(List<MTGCard> cards) async {
@@ -77,20 +99,20 @@ class MTGDB {
       whereArgs.add("%${filter.name}%");
     }
     if ((filter.set??'')!='') {
-      where = where + ' AND c.cardSet = ?' ;
-      whereArgs.add(filter.set);
+      where = where + ' AND s.name LIKE ?' ;
+      whereArgs.add('%${filter.set}%');
     }
     if ((filter.type??'')!='') {
       where = where + ' AND c.types LIKE ?' ;
       whereArgs.add("%${filter.type}%");
     }
     if ((filter.subtype??'')!='') {
-      where = where + ' AND c.types LIKE ?' ;
+      where = where + ' AND c.subtypes LIKE ?' ;
       whereArgs.add("%${filter.subtype}%");
     }
-    if (filter.rarities!=null && (filter.rarities.length>0 && filter.rarities.length<4)) {
-      where = where + ' AND c.rarity in (?)' ;
-      whereArgs.add(filter.rarities?.map((e) => MTGCard.rarityFromString(e))?.join(',')??'');
+    if (filter.rarities!=null && filter.rarities.length<4) {
+      where = where + ' AND c.rarity in (${filter.rarities?.map((e) => '?')?.join(',')??''})' ;
+      whereArgs.addAll(filter.rarities?.map((e) => MTGCard.rarityFromString(e).toString())?.toList()??List<String>(0));
     }
     if (filter.colors!=null) {
       for (String color in ['B', 'G', 'R', 'U', 'W']) {
@@ -123,45 +145,99 @@ class MTGDB {
       whereArgs.add(filter.toughness);
     }
     if ((filter.text??'')!='') {
-      where = where + ' AND c.oracleText LIKE ?' ;
-      whereArgs.add("%${filter.text}%");
+      for (String word in filter.text.split(' ')) {
+        where = where + ' AND c.oracleText LIKE ?';
+        whereArgs.add("%$word%");
+      }
     }
-    String orderBy;
-    orderBy = _addOrder(orderBy, order.type1);
-    orderBy = _addOrder(orderBy, order.type2);
-    orderBy = _addOrder(orderBy, order.type3);
+    if (officialSetsOnly) {
+      where = where + ' AND LENGTH(c.cardSet)<4';
+    }
+    if (expansionsOnly) {
+      where = where + ' AND s.setType = "expansion"';
+    }
+    String orderBy = order.types.map((e) => CardOrder.typeToSqlString(e)).join(',');
     if (orderBy==null)
       orderBy = "s.releasedAt DESC, c.rarity DESC";
-    return db.rawQuery('SELECT c.*, s.releasedAt FROM mtg_cards c LEFT JOIN mtg_sets s on c.cardSet=s.code WHERE '+where+' ORDER BY '+orderBy, whereArgs);
+    return db.rawQuery('SELECT c.id, c.name FROM mtg_cards c LEFT JOIN mtg_sets s on c.cardSet=s.code WHERE '+where+' ORDER BY '+orderBy, whereArgs);
   }
 
-  static String _addOrder(String order, OrderType type) {
-    switch(type) {
-      case OrderType.DATE_ASC:
-        return (order==null ? '' : order + ', ') + "s.releasedAt ASC";
-      case OrderType.DATE_DESC:
-        return (order==null ? '' : order + ', ') + "s.releasedAt DESC";
-      case OrderType.NAME_ASC:
-        return (order==null ? '' : order + ', ') + "c.name ASC";
-      case OrderType.NAME_DESC:
-        return (order==null ? '' : order + ', ') + "c.name DESC";
-      case OrderType.RARITY_ASC:
-        return (order==null ? '' : order + ', ') + "c.rarity ASC";
-      case OrderType.RARITY_DESC:
-        return (order==null ? '' : order + ', ') + "c.rarity DESC";
-      case OrderType.CMC_ASC:
-        return (order==null ? '' : order + ', ') + "c.cmc ASC";
-      case OrderType.CMC_DESC:
-        return (order==null ? '' : order + ', ') + "c.cmc DESC";
-      case OrderType.NUMBER_ASC:
-        return (order==null ? '' : order + ', ') + "c.collectorNumber ASC";
-      case OrderType.NUMBER_DESC:
-        return (order==null ? '' : order + ', ') + "c.collectorNumber DESC";
-      case OrderType.NONE:
-        return order;
-      default:
-        throw Exception("Illegal OrderType");
+  static Future<Iterable<String>> loadTypeNames(String _pattern) async {
+    if (_pattern.length < 1)
+      return [];
+    String pattern = _pattern.toLowerCase();
+    Database db = await _database;
+    String where = 'c.types LIKE ?';
+    if (officialSetsOnly) {
+      where = where + ' AND LENGTH(c.cardSet)<4';
     }
+    if (expansionsOnly) {
+      where = where + ' AND s.setType = "expansion"';
+    }
+    List<String> whereArgs = ["%$pattern%"];
+    List<Map<String,dynamic>> maps = await db.rawQuery('SELECT DISTINCT c.types FROM mtg_cards c LEFT JOIN mtg_sets s on c.cardSet=s.code WHERE '+where, whereArgs);
+    Iterable<List<String>> types = maps.map((e) => (e['types'] as String).split(' '));
+    Iterable<String> matchingTypes = types.expand((element) => element)
+        .where((element) => element!='' && element!='//' && element.toLowerCase().contains(pattern))
+        .toSet()
+        .toList(growable: false);
+    return matchingTypes;
+  }
+
+  static Future<List<String>> loadSubtypeNames(String _pattern) async {
+    if (_pattern.length < 1)
+      return [];
+    String pattern = _pattern.toLowerCase();
+    Database db = await _database;
+    String where = 'c.subtypes LIKE ?';
+    if (officialSetsOnly) {
+      where = where + ' AND LENGTH(c.cardSet)<4';
+    }
+    if (expansionsOnly) {
+      where = where + ' AND s.setType = "expansion"';
+    }
+    List<String> whereArgs = ["%$pattern%"];
+    List<Map<String,dynamic>> maps = await db.rawQuery('SELECT DISTINCT c.subtypes FROM mtg_cards c LEFT JOIN mtg_sets s on c.cardSet=s.code WHERE '+where, whereArgs);
+    Iterable<List<String>> types = maps.map((e) => (e['subtypes'] as String).split(' '));
+    Iterable<String> matchingTypes = types.expand((element) => element)
+        .where((element) => element!='' && element!='//' && element.toLowerCase().contains(pattern))
+        .toSet()
+        .toList(growable: false);
+    return matchingTypes;
+  }
+
+  static Future<List<String>> loadNames(String _pattern) async {
+    if (_pattern.length < 1)
+      return [];
+    String pattern = _pattern.toLowerCase();
+    Database db = await _database;
+    String where = 'c.name LIKE ?';
+    if (officialSetsOnly) {
+      where = where + ' AND LENGTH(c.cardSet)<4';
+    }
+    if (expansionsOnly) {
+      where = where + ' AND s.setType = "expansion"';
+    }
+    List<String> whereArgs = ["%$pattern%"];
+    List<Map<String,dynamic>> maps = await db.rawQuery('SELECT DISTINCT c.name FROM mtg_cards c LEFT JOIN mtg_sets s on c.cardSet=s.code WHERE '+where, whereArgs);
+    return maps.map((e) => (e['name'] as String)).toList(growable: false);
+  }
+
+  static Future<List<String>> loadSetNames(String _pattern) async {
+    if (_pattern.length < 1)
+      return [];
+    String pattern = _pattern.toLowerCase();
+    Database db = await _database;
+    String where = 'name LIKE ?';
+    if (officialSetsOnly) {
+      where = where + ' AND LENGTH(code)<4';
+    }
+    if (expansionsOnly) {
+      where = where + ' AND setType = "expansion"';
+    }
+    List<String> whereArgs = ["%$pattern%"];
+    List<Map<String,dynamic>> maps = await db.query('mtg_sets', columns: ['name'] ,where: where, whereArgs: whereArgs, distinct: true);
+    return maps.map((e) => (e['name'] as String)).toList(growable: false);
   }
 
   static void closeDB() {
@@ -210,6 +286,7 @@ class MTGDB {
                 toughness TEXT,
                 loyalty TEXT,
                 types TEXT,
+                subtypes TEXT,
                 fullArt INTEGER,
                 imageURI_png TEXT,
                 imageURI_borderCrop TEXT,
@@ -249,6 +326,7 @@ class MTGDB {
                 cardFace0_power TEXT,
                 cardFace0_toughness TEXT,
                 cardFace0_types TEXT,
+                cardFace0_subtypes TEXT,
                 cardFace1_colorIdentity TEXT,
                 cardFace1_manaCost TEXT,
                 cardFace1_imageURI_png TEXT,
@@ -262,7 +340,8 @@ class MTGDB {
                 cardFace1_oracleText TEXT,
                 cardFace1_power TEXT,
                 cardFace1_toughness TEXT,
-                cardFace1_types TEXT
+                cardFace1_types TEXT,
+                cardFace1_subtypes TEXT
               );
             ''');
           });

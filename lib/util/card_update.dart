@@ -4,9 +4,9 @@ import 'dart:io';
 import 'package:http/http.dart' as http;
 
 import 'package:MTGMoe/model/app_state_model.dart';
-import 'package:MTGMoe/model/mtg_card.dart';
-import 'package:MTGMoe/model/mtg_set.dart';
 import 'package:MTGMoe/mtg_db.dart';
+import 'package:MTGMoe/model/card/mtg_set.dart';
+import 'package:MTGMoe/model/card/mtg_card.dart';
 
 Stream<Map<String, Object>> updateSets(AppStateModel model) async* {
   final response = await http.get("https://api.scryfall.com/sets/");
@@ -20,7 +20,7 @@ Stream<Map<String, Object>> updateSets(AppStateModel model) async* {
       if (!set.digital && !savedSets.any((s) => s.code==set.code)) {
         Map<String, Object> streamValue = { 'set' : set.name, 'progress': (i+1) / sets.length };
         yield streamValue;
-        print('adding ${set.name}\n');
+        //print('adding ${set.name}\n');
         sleep(Duration(milliseconds: 50));
         if (await updateCards(model, set.searchURI))
           await MTGDB.saveSets([set]);
@@ -42,6 +42,8 @@ Future<bool> updateCards(AppStateModel model, String searchURI) async {
   bool hasMore = true;
   String uri = searchURI;
   List<MTGCard> cards = [];
+  Stopwatch sw = Stopwatch();
+  sw.start();
   while(hasMore) {
     hasMore = false;
     if (!model.doUpdate)
@@ -65,5 +67,7 @@ Future<bool> updateCards(AppStateModel model, String searchURI) async {
     }
   }
   await MTGDB.saveCards(cards);
+  sw.stop();
+  print('updateCards(${cards.length}): ${sw.elapsedMilliseconds}ms');
   return true;
 }

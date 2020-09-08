@@ -31,9 +31,10 @@ abstract class MoeStyle {
 
   static const Color defaultAppColor = Color(0xff222222);
   static const Color defaultIconColor = Color(0xffffddff);
-  static const Color cardFilterColor = Color(0xff333333);
+  static const Color cardListDialogColor = Color(0xff333333);
   static const Color navigationBarIconColor = Color(0xffffffff);
   static const Color navigationBarIconColorActive = Color(0xffff88ff);
   static const Color filterButtonColor = Color(0xffdd22dd);
   static const Color dividerColor = Color(0xffffffff);
+  static const Color defaultDecorationColor = Color(0xffff88ff);
 }

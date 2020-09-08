@@ -1,9 +1,11 @@
-import 'package:MTGMoe/model/mtg_card_legalities.dart';
 import 'package:json_annotation/json_annotation.dart';
 
-import 'package:MTGMoe/model/mtg_card_face.dart';
-import 'package:MTGMoe/model/mtg_card_image_uris.dart';
-import 'package:MTGMoe/model/mtg_card_prices.dart';
+import 'package:MTGMoe/util/extensions.dart';
+import 'package:MTGMoe/model/card/mtg_card_face.dart';
+import 'package:MTGMoe/model/card/mtg_card_image_uris.dart';
+import 'package:MTGMoe/model/card/mtg_card_legalities.dart';
+import 'package:MTGMoe/model/card/mtg_card_prices.dart';
+import 'package:MTGMoe/model/card/mtg_card_type.dart';
 
 part 'mtg_card.g.dart';
 
@@ -29,7 +31,7 @@ class MTGCard {
   @JsonKey(nullable: true, name: 'color_identity')
   List<String> colorIdentity;
 
-  @JsonKey(nullable: true, name: 'card_faces')
+  @JsonKey(name: 'card_faces')
   List<MTGCardFace> cardFaces;
 
   List<String> keywords;
@@ -50,8 +52,8 @@ class MTGCard {
   @JsonKey(nullable: true)
   String loyalty;
 
-  @JsonKey(nullable: true, name: 'type_line', fromJson: typesFromJson, toJson: typesToJson)
-  List<List<String>> types;
+  @JsonKey(name: 'type_line', fromJson: MTGCardTypes.typesFromJson, toJson: MTGCardTypes.typesToJson)
+  MTGCardTypes types;
 
   @JsonKey(name: 'full_art')
   bool fullArt;
@@ -98,20 +100,6 @@ class MTGCard {
   factory MTGCard.fromMap(Map<String, dynamic> map) => MTGCardHelper.fromMap(map);
   Map<String, dynamic> toMap() => MTGCardHelper.toMap(this);
 
-  static List<List<String>> typesFromJson(dynamic json) {
-    String typeline = json as String;
-    return typeline?.split('-')?.map((e) => e.split(' '))?.toList(growable: false);
-  }
-  
-  static Map<String, dynamic> typesToJson(List<List<String>> types) {
-    if (types.length>1) {
-      return { 'type_line': '${types[0].join(' ')} - ${types[1].join(' ')}' };
-    }
-    else {
-      return { 'type_line': types[0].join(' ') };
-    }
-  }
-
   static int rarityFromJson(dynamic json) {
     return rarityFromString(json as String);
   }
@@ -137,12 +125,13 @@ class MTGCard {
 
 class MTGCardHelper {
   static Map<String, dynamic> toMap(MTGCard card) {
+    //print(card.name);
     return {
       'id': card.id,
-      'multiverseId0': card.multiverseIds != null && card.multiverseIds.length>0 ? card.multiverseIds[0] : null,
-      'multiverseId1': card.multiverseIds != null && card.multiverseIds.length>1 ? card.multiverseIds[1] : null,
+      'multiverseId0': card.multiverseIds?.atOrNull(0),
+      'multiverseId1': card.multiverseIds?.atOrNull(1),
       'oracleId': card.oracleId,
-      'collectorNumber': card.collectorNumber,
+      'collectorNumber': '0'*(3-(card.collectorNumber?.length??0))+(card.collectorNumber??''),
       'cmc': card.cmc,
       'manaCost': card.manaCost,
       'colorIdentity': card.colorIdentity.join('|'),
@@ -153,7 +142,8 @@ class MTGCardHelper {
       'power': card.power,
       'toughness': card.toughness,
       'loyalty': card.loyalty,
-      'types': card.types.length>1 ? '${card.types[0].join(' ')} - ${card.types[1].join(' ')}' : card.types[0]?.join(' '),
+      'types': card.types.typesToMapString(),
+      'subtypes': card.types.subtypesToMapString(),
       'fullArt': card.fullArt ? 1 : 0,
       'imageURI_png': card.imageURIs?.png,
       'imageURI_borderCrop': card.imageURIs?.png,
@@ -161,52 +151,54 @@ class MTGCardHelper {
       'imageURI_large': card.imageURIs?.large,
       'imageURI_normal': card.imageURIs?.normal,
       'imageURI_small': card.imageURIs?.small,
-      'price_usd': card.prices.usd,
-      'price_usdFoil': card.prices.usdFoil,
-      'price_eur': card.prices.eur,
+      'price_usd': card.prices?.usd,
+      'price_usdFoil': card.prices?.usdFoil,
+      'price_eur': card.prices?.eur,
       'rarity': card.rarity,
       'cardSet': card.set,
-      'legalities_standard': card.legalities.standard,
-      'legalities_future': card.legalities.future,
-      'legalities_historic': card.legalities.historic,
-      'legalities_pioneer': card.legalities.pioneer,
-      'legalities_modern': card.legalities.modern,
-      'legalities_legacy': card.legalities.legacy,
-      'legalities_pauper': card.legalities.pauper,
-      'legalities_vintage': card.legalities.vintage,
-      'legalities_penny': card.legalities.penny,
-      'legalities_commander': card.legalities.commander,
-      'legalities_brawl': card.legalities.brawl,
-      'legalities_duel': card.legalities.duel,
-      'legalities_oldschool': card.legalities.oldschool,
-      'cardFace0_colorIdentity': card.cardFaces!=null && card.cardFaces[0].colorIdentity!=null ? card.cardFaces[0].colorIdentity.join('|') : null,
-      'cardFace0_manaCost': card.cardFaces!=null ? card.cardFaces[0].manaCost : null,
-      'cardFace0_imageURI_png': card.cardFaces!=null && card.cardFaces[0].imageURIs!=null ? card.cardFaces[0].imageURIs.png : null,
-      'cardFace0_imageURI_borderCrop': card.cardFaces!=null && card.cardFaces[0].imageURIs!=null ? card.cardFaces[0].imageURIs.borderCrop : null,
-      'cardFace0_imageURI_artCrop': card.cardFaces!=null && card.cardFaces[0].imageURIs!=null ? card.cardFaces[0].imageURIs.artCrop : null,
-      'cardFace0_imageURI_large': card.cardFaces!=null && card.cardFaces[0].imageURIs!=null ? card.cardFaces[0].imageURIs.large : null,
-      'cardFace0_imageURI_normal': card.cardFaces!=null && card.cardFaces[0].imageURIs!=null ? card.cardFaces[0].imageURIs.normal : null,
-      'cardFace0_imageURI_small': card.cardFaces!=null && card.cardFaces[0].imageURIs!=null ? card.cardFaces[0].imageURIs.small : null,
-      'cardFace0_loyalty': card.cardFaces!=null ? card.cardFaces[0].loyalty : null,
-      'cardFace0_name': card.cardFaces!=null ? card.cardFaces[0].name : null,
-      'cardFace0_oracleText': card.cardFaces!=null ? card.cardFaces[0].oracleText : null,
-      'cardFace0_power': card.cardFaces!=null ? card.cardFaces[0].power : null,
-      'cardFace0_toughness': card.cardFaces!=null ? card.cardFaces[0].toughness : null,
-      'cardFace0_types': card.cardFaces!=null ? ((card.cardFaces[0].types?.length??0)>0 ? '${card.cardFaces[0].types[0].join(' ')} - ${card.cardFaces[0].types[1].join(' ')}' : card.cardFaces[0].types[0]?.join(' ')) : null,
-      'cardFace1_colorIdentity': card.cardFaces!=null && card.cardFaces[1].colorIdentity!=null ? card.cardFaces[1].colorIdentity.join('|') : null,
-      'cardFace1_manaCost': card.cardFaces!=null ? card.cardFaces[1].manaCost : null,
-      'cardFace1_imageURI_png': card.cardFaces!=null && card.cardFaces[1].imageURIs!=null ? card.cardFaces[1].imageURIs.png : null,
-      'cardFace1_imageURI_borderCrop': card.cardFaces!=null && card.cardFaces[1].imageURIs!=null ? card.cardFaces[1].imageURIs.borderCrop : null,
-      'cardFace1_imageURI_artCrop': card.cardFaces!=null && card.cardFaces[1].imageURIs!=null ? card.cardFaces[1].imageURIs.artCrop : null,
-      'cardFace1_imageURI_large': card.cardFaces!=null && card.cardFaces[1].imageURIs!=null ? card.cardFaces[1].imageURIs.large : null,
-      'cardFace1_imageURI_normal': card.cardFaces!=null && card.cardFaces[1].imageURIs!=null ? card.cardFaces[1].imageURIs.normal : null,
-      'cardFace1_imageURI_small': card.cardFaces!=null && card.cardFaces[1].imageURIs!=null ? card.cardFaces[1].imageURIs.small : null,
-      'cardFace1_loyalty': card.cardFaces!=null ? card.cardFaces[1].loyalty : null,
-      'cardFace1_name': card.cardFaces!=null ? card.cardFaces[1].name : null,
-      'cardFace1_oracleText': card.cardFaces!=null ? card.cardFaces[1].oracleText : null,
-      'cardFace1_power': card.cardFaces!=null ? card.cardFaces[1].power : null,
-      'cardFace1_toughness': card.cardFaces!=null ? card.cardFaces[1].toughness : null,
-      'cardFace1_types': card.cardFaces!=null ? ((card.cardFaces[1].types?.length??0)>0 ? '${card.cardFaces[1].types[0].join(' ')} - ${card.cardFaces[1].types[1].join(' ')}' : card.cardFaces[1].types[0]?.join(' ')) : null,
+      'legalities_standard': card.legalities?.standard,
+      'legalities_future': card.legalities?.future,
+      'legalities_historic': card.legalities?.historic,
+      'legalities_pioneer': card.legalities?.pioneer,
+      'legalities_modern': card.legalities?.modern,
+      'legalities_legacy': card.legalities?.legacy,
+      'legalities_pauper': card.legalities?.pauper,
+      'legalities_vintage': card.legalities?.vintage,
+      'legalities_penny': card.legalities?.penny,
+      'legalities_commander': card.legalities?.commander,
+      'legalities_brawl': card.legalities?.brawl,
+      'legalities_duel': card.legalities?.duel,
+      'legalities_oldschool': card.legalities?.oldschool,
+      'cardFace0_colorIdentity': card.cardFaces?.atOrNull(0)?.colorIdentity?.join('|'),
+      'cardFace0_manaCost': card.cardFaces?.atOrNull(0)?.manaCost,
+      'cardFace0_imageURI_png': card.cardFaces?.atOrNull(0)?.imageURIs?.png,
+      'cardFace0_imageURI_borderCrop': card.cardFaces?.atOrNull(0)?.imageURIs?.borderCrop,
+      'cardFace0_imageURI_artCrop': card.cardFaces?.atOrNull(0)?.imageURIs?.artCrop,
+      'cardFace0_imageURI_large': card.cardFaces?.atOrNull(0)?.imageURIs?.large,
+      'cardFace0_imageURI_normal': card.cardFaces?.atOrNull(0)?.imageURIs?.normal,
+      'cardFace0_imageURI_small': card.cardFaces?.atOrNull(0)?.imageURIs?.small,
+      'cardFace0_loyalty': card.cardFaces?.atOrNull(0)?.loyalty,
+      'cardFace0_name': card.cardFaces?.atOrNull(0)?.name,
+      'cardFace0_oracleText': card.cardFaces?.atOrNull(0)?.oracleText,
+      'cardFace0_power': card.cardFaces?.atOrNull(0)?.power,
+      'cardFace0_toughness': card.cardFaces?.atOrNull(0)?.toughness,
+      'cardFace0_types': card.cardFaces?.atOrNull(0)?.types?.typesToMapString(),
+      'cardFace0_subtypes': card.cardFaces?.atOrNull(0)?.types?.subtypesToMapString(),
+      'cardFace1_colorIdentity': card.cardFaces?.atOrNull(1)?.colorIdentity?.join('|'),
+      'cardFace1_manaCost': card.cardFaces?.atOrNull(1)?.manaCost,
+      'cardFace1_imageURI_png': card.cardFaces?.atOrNull(1)?.imageURIs?.png,
+      'cardFace1_imageURI_borderCrop': card.cardFaces?.atOrNull(1)?.imageURIs?.borderCrop,
+      'cardFace1_imageURI_artCrop': card.cardFaces?.atOrNull(1)?.imageURIs?.artCrop,
+      'cardFace1_imageURI_large': card.cardFaces?.atOrNull(1)?.imageURIs?.large,
+      'cardFace1_imageURI_normal': card.cardFaces?.atOrNull(1)?.imageURIs?.normal,
+      'cardFace1_imageURI_small': card.cardFaces?.atOrNull(1)?.imageURIs?.small,
+      'cardFace1_loyalty': card.cardFaces?.atOrNull(1)?.loyalty,
+      'cardFace1_name': card.cardFaces?.atOrNull(1)?.name,
+      'cardFace1_oracleText': card.cardFaces?.atOrNull(1)?.oracleText,
+      'cardFace1_power': card.cardFaces?.atOrNull(1)?.power,
+      'cardFace1_toughness': card.cardFaces?.atOrNull(1)?.toughness,
+      'cardFace1_types': card.cardFaces?.atOrNull(1)?.types?.typesToMapString(),
+      'cardFace1_subtypes': card.cardFaces?.atOrNull(1)?.types?.subtypesToMapString(),
     };
   }
   static MTGCard fromMap(Map<String, dynamic> map) {
@@ -225,7 +217,7 @@ class MTGCardHelper {
       power: map['power'],
       toughness: map['toughness'],
       loyalty: map['loyalty'],
-      types: (map['types'] as String)?.split('-')?.map((e) => e.split(' '))?.toList(growable: false),
+      types: MTGCardTypes.fromTypesAndSubtypes(map['types'], map['subtypes']),
       fullArt: map['fullArt'] == 1,
       imageURIs: map['imageURI_png']!=null ? MTGCardImageURIs(
         png: map['imageURI_png'],
@@ -274,13 +266,13 @@ class MTGCardHelper {
           oracleText: map['cardFace0_oracleText'],
           power: map['cardFace0_power'],
           toughness: map['cardFace0_toughness'],
-          types: (map['cardFace0_types'] as String)?.split('-')?.map((e) => e.split(' '))?.toList(growable: false),
+          types: MTGCardTypes.fromTypesAndSubtypes(map['cardFace0_types'], map['cardFace0_subtypes']),
         ),
         MTGCardFace(
           colorIdentity: (map['cardFace1_colorIdentity'] as String)!=null ? (map['cardFace1_colorIdentity'] as String).split('|') : [],
           manaCost: map['cardFace1_manaCost'],
           imageURIs: (map['cardFace1_imageURI_png']!=null) ? MTGCardImageURIs(
-            png: map['cardFace0_imageURI_png'],
+            png: map['cardFace1_imageURI_png'],
             borderCrop: map['cardFace1_imageURI_borderCrop'],
             artCrop: map['cardFace1_imageURI_artCrop'],
             large: map['cardFace1_imageURI_large'],
@@ -292,7 +284,7 @@ class MTGCardHelper {
           oracleText: map['cardFace1_oracleText'],
           power: map['cardFace1_power'],
           toughness: map['cardFace1_toughness'],
-          types: (map['cardFace1_types'] as String)?.split('-')?.map((e) => e.split(' '))?.toList(growable: false),
+          types: MTGCardTypes.fromTypesAndSubtypes(map['cardFace1_types'], map['cardFace1_subtypes']),
         )
       ] : [],
     );

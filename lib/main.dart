@@ -1,35 +1,36 @@
-import 'package:MTGMoe/moe_style.dart';
-import 'package:MTGMoe/mtg_db.dart';
-import 'package:flutter/cupertino.dart'
-    show
-    CupertinoActionSheet,
-    CupertinoActionSheetAction,
-    CupertinoDynamicColor,
-    CupertinoIcons,
-    CupertinoThemeData,
-    DefaultCupertinoLocalizations;
-import 'package:flutter/material.dart'
-    show
-    Colors,
-    DefaultMaterialLocalizations,
-    Icons,
-    Theme,
-    ThemeData,
-    ThemeMode;
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-import 'tabs/home_tab.dart';
-import 'tabs/cards_tab.dart';
-import 'tabs/settings_tab.dart';
-import 'model/app_state_model.dart';
+import 'package:MTGMoe/moe_style.dart';
+import 'package:MTGMoe/mtg_db.dart';
+import 'package:MTGMoe/model/app_state_model.dart';
+import 'package:MTGMoe/tabs/card_list_tab.dart';
+import 'package:MTGMoe/tabs/home_tab.dart';
+import 'package:MTGMoe/tabs/settings_tab.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  if (!prefs.containsKey('show_only_official_sets')) {
+    prefs.setBool('show_only_official_sets', false);
+    MTGDB.officialSetsOnly = false;
+  }
+  else {
+    MTGDB.officialSetsOnly = prefs.getBool('show_only_official_sets');
+  }
+  if (!prefs.containsKey('show_expansions_only')) {
+    prefs.setBool('show_expansions_only', true);
+    MTGDB.expansionsOnly = true;
+  }
+  else {
+    MTGDB.expansionsOnly = prefs.getBool('show_expansions_only');
+  }
   await MTGDB.loadSets();
-  //await MTGDB.loadCards();
   runApp(
     ChangeNotifierProvider<AppStateModel>(
       create: (_) => AppStateModel(),

@@ -1,34 +1,42 @@
-import 'dart:io';
-
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
-import 'package:path_provider/path_provider.dart';
-import 'package:http/http.dart' as http;
 
-import 'package:MTGMoe/model/app_state_model.dart';
-import 'package:MTGMoe/mtg_db.dart';
-import 'package:MTGMoe/model/mtg_card.dart';
 import 'package:MTGMoe/moe_style.dart';
+import 'package:MTGMoe/routes/card_info.dart';
+import 'package:MTGMoe/util/card_image.dart';
 
-Widget cardTabContent(List<MTGCard> cardList) {
-  if (cardList != null && cardList.length > 0) {
+Widget cardTabContent(List<List<String>> cardIdNameList) {
+  List<String> cardIdList = cardIdNameList.map((e) => e[0]).toList();
+  List<String> cardNameList = cardIdNameList.map((e) => e[1]).toList();
+  if (cardIdList != null && cardIdList.length > 0) {
     return SliverGrid(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        mainAxisSpacing: 5,
-        crossAxisSpacing: 5,
+        mainAxisSpacing: 5.0,
+        crossAxisSpacing: 5.0,
         childAspectRatio: 488.0 / 680.0,
       ),
       delegate: SliverChildBuilderDelegate(
             (context, index) {
-          if (index < cardList.length) {
-            return _cardImage(cardList[index]);
+          if (index < cardIdList.length) {
+            return MaterialButton(
+              padding: const EdgeInsets.all(0),
+              onPressed: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(
+                    builder: (context) => CardInfo(cardId: cardIdList[index], cardName: cardNameList[index]),
+                    settings: RouteSettings()
+                  )
+                );
+              },
+              child: cardImages(cardIdList[index], cardNameList[index], 1),
+            );
           }
           else {
             return null;
           }
         },
-        childCount: cardList.length,
+        childCount: cardIdList.length,
       ),
     );
   }
@@ -48,40 +56,37 @@ Widget cardTabContent(List<MTGCard> cardList) {
   }
 }
 
-Widget _cardImage(MTGCard card) {
+Widget cardImages(String cardId, String cardName, int num) {
   return FutureBuilder(
-    future: getImage(card),
+    future: getImages(cardId, num),
     builder: (context, snapshot) {
       if (!snapshot.hasError) {
         if (snapshot.connectionState == ConnectionState.done) {
-          return snapshot.data as Image;
+          List<Image> images = (snapshot.data as List<Image>);
+          if (images.length>1) {
+            return Row(
+              children: [
+                Expanded(
+                  child: images[0],
+                ),
+                Expanded(
+                  child: images[1],
+                ),
+              ],
+            );
+          }
+          else {
+            return images[0];
+          }
         }
         else if (snapshot.connectionState == ConnectionState.waiting) {
           return Image.asset('images/card_back.png');
         }
       }
+      print(snapshot.error);
       return Center(
-        child: Text(card.name),
+        child: Text(cardName),
       );
     },
   );
-}
-
-Future<Image> getImage(MTGCard card) async {
-  final String path = (await getApplicationDocumentsDirectory()).path;
-  File imageFile = File('$path/images/${card.id}.png');
-  if (imageFile.existsSync()) {
-    return Image.file(imageFile, fit: BoxFit.fitWidth);
-  }
-  else {
-    http.Response response = await http.get(card.imageURIs.png);
-    if (response.statusCode==200) {
-      imageFile.createSync(recursive: true);
-      imageFile.writeAsBytes(response.bodyBytes);
-      return Image.memory(response.bodyBytes, fit: BoxFit.fitWidth);
-    }
-    else {
-      return Image.asset('images/card_back.png', fit: BoxFit.fitWidth);
-    }
-  }
 }

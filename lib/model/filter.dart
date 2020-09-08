@@ -15,13 +15,12 @@ class CardFilter {
   List<String> colors = List<String>();
   ColorMatch colorMatch;
 
-
   CardFilter({this.name='', this.type='', this.subtype='', this.text='', this.set='',
       this.power='', this.toughness='', this.rarities, this.colors, this.colorMatch=ColorMatch.MIN}) {
     if (colors==null)
       colors = List<String>();
     if (rarities==null)
-      rarities = List<String>();
+      rarities = ['common', 'uncommon', 'rare', 'mythic'];
   }
 
   CardFilter.fromFilter(CardFilter filter) {
@@ -76,6 +75,19 @@ class CardFilter {
       power == other.power &&
       toughness == other.power &&
       colorMatch == other.colorMatch;
+  }
+
+  void clear() {
+    name = '';
+    type = '';
+    subtype = '';
+    text = '';
+    set = '';
+    power = '';
+    toughness = '';
+    colors = List<String>();
+    colorMatch = ColorMatch.MIN;
+    rarities = ['common', 'uncommon', 'rare', 'mythic'];
   }
 
   @override
