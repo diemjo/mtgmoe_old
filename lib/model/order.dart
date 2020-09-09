@@ -62,7 +62,7 @@ class CardOrder {
     switch(type) {
       case OrderType.DATE_DESC:
       case OrderType.DATE_ASC:
-        return "Date";
+        return "Date & Set";
       case OrderType.RARITY_DESC:
       case OrderType.RARITY_ASC:
         return "Rarity";
@@ -87,9 +87,9 @@ class CardOrder {
   static String typeToSqlString(OrderType type) {
     switch(type) {
       case OrderType.DATE_ASC:
-        return "s.releasedAt ASC";
+        return "s.releasedAt ASC, s.setName DESC";
       case OrderType.DATE_DESC:
-        return "s.releasedAt DESC";
+        return "s.releasedAt DESC, s.setName ASC";
       case OrderType.NAME_ASC:
         return "c.name ASC";
       case OrderType.NAME_DESC:

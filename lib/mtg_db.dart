@@ -1,4 +1,5 @@
 import 'package:path/path.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
 import 'package:MTGMoe/model/filter.dart';
@@ -15,9 +16,6 @@ class MTGDB {
 
   static List<List<String>> _cards;
   static List<MTGSet> _sets;
-
-  static bool officialSetsOnly;
-  static bool expansionsOnly;
 
   static void invalidate() {
     _cards = null;
@@ -65,7 +63,7 @@ class MTGDB {
 
   static Future<List<String>> loadSetTypes() async {
     final Database db = await _database;
-    final List<Map<String, dynamic>> maps = await db.query('mtg_sets', columns: ['setType'], distinct: true);
+    final List<Map<String, dynamic>> maps = await db.query('mtg_sets', columns: ['setType'], groupBy: 'setType', distinct: true);
     return maps.map((e) => e['setType'] as String).toList(growable: false);
   }
 
@@ -99,7 +97,7 @@ class MTGDB {
       whereArgs.add("%${filter.name}%");
     }
     if ((filter.set??'')!='') {
-      where = where + ' AND s.name LIKE ?' ;
+      where = where + ' AND s.setName LIKE ?' ;
       whereArgs.add('%${filter.set}%');
     }
     if ((filter.type??'')!='') {
@@ -150,16 +148,17 @@ class MTGDB {
         whereArgs.add("%$word%");
       }
     }
-    if (officialSetsOnly) {
-      where = where + ' AND LENGTH(c.cardSet)<4';
-    }
-    if (expansionsOnly) {
-      where = where + ' AND s.setType = "expansion"';
+    List<dynamic> setTypes = await _setTypeFilter();
+    if (setTypes!=null) {
+      where = where + setTypes[0];
+      whereArgs.addAll(setTypes[1]);
+      print(where);
+      print(whereArgs);
     }
     String orderBy = order.types.map((e) => CardOrder.typeToSqlString(e)).join(',');
     if (orderBy==null)
       orderBy = "s.releasedAt DESC, c.rarity DESC";
-    return db.rawQuery('SELECT c.id, c.name FROM mtg_cards c LEFT JOIN mtg_sets s on c.cardSet=s.code WHERE '+where+' ORDER BY '+orderBy, whereArgs);
+    return db.rawQuery('SELECT c.id, c.name FROM mtg_cards c LEFT JOIN mtg_sets s on c.setCode=s.setCode WHERE '+where+' ORDER BY '+orderBy, whereArgs);
   }
 
   static Future<Iterable<String>> loadTypeNames(String _pattern) async {
@@ -168,14 +167,13 @@ class MTGDB {
     String pattern = _pattern.toLowerCase();
     Database db = await _database;
     String where = 'c.types LIKE ?';
-    if (officialSetsOnly) {
-      where = where + ' AND LENGTH(c.cardSet)<4';
-    }
-    if (expansionsOnly) {
-      where = where + ' AND s.setType = "expansion"';
-    }
     List<String> whereArgs = ["%$pattern%"];
-    List<Map<String,dynamic>> maps = await db.rawQuery('SELECT DISTINCT c.types FROM mtg_cards c LEFT JOIN mtg_sets s on c.cardSet=s.code WHERE '+where, whereArgs);
+    List<dynamic> setTypes = await _setTypeFilter();
+    if (setTypes!=null) {
+      where = where + setTypes[0];
+      whereArgs.addAll(setTypes[1]);
+    }
+    List<Map<String,dynamic>> maps = await db.rawQuery('SELECT DISTINCT c.types FROM mtg_cards c LEFT JOIN mtg_sets s on c.setCode=s.setCode WHERE '+where, whereArgs);
     Iterable<List<String>> types = maps.map((e) => (e['types'] as String).split(' '));
     Iterable<String> matchingTypes = types.expand((element) => element)
         .where((element) => element!='' && element!='//' && element.toLowerCase().contains(pattern))
@@ -190,14 +188,13 @@ class MTGDB {
     String pattern = _pattern.toLowerCase();
     Database db = await _database;
     String where = 'c.subtypes LIKE ?';
-    if (officialSetsOnly) {
-      where = where + ' AND LENGTH(c.cardSet)<4';
-    }
-    if (expansionsOnly) {
-      where = where + ' AND s.setType = "expansion"';
-    }
     List<String> whereArgs = ["%$pattern%"];
-    List<Map<String,dynamic>> maps = await db.rawQuery('SELECT DISTINCT c.subtypes FROM mtg_cards c LEFT JOIN mtg_sets s on c.cardSet=s.code WHERE '+where, whereArgs);
+    List<dynamic> setTypes = await _setTypeFilter();
+    if (setTypes!=null) {
+      where = where + setTypes[0];
+      whereArgs.addAll(setTypes[1]);
+    }
+    List<Map<String,dynamic>> maps = await db.rawQuery('SELECT DISTINCT c.subtypes FROM mtg_cards c LEFT JOIN mtg_sets s on c.setCode=s.setCode WHERE '+where, whereArgs);
     Iterable<List<String>> types = maps.map((e) => (e['subtypes'] as String).split(' '));
     Iterable<String> matchingTypes = types.expand((element) => element)
         .where((element) => element!='' && element!='//' && element.toLowerCase().contains(pattern))
@@ -212,14 +209,13 @@ class MTGDB {
     String pattern = _pattern.toLowerCase();
     Database db = await _database;
     String where = 'c.name LIKE ?';
-    if (officialSetsOnly) {
-      where = where + ' AND LENGTH(c.cardSet)<4';
-    }
-    if (expansionsOnly) {
-      where = where + ' AND s.setType = "expansion"';
-    }
     List<String> whereArgs = ["%$pattern%"];
-    List<Map<String,dynamic>> maps = await db.rawQuery('SELECT DISTINCT c.name FROM mtg_cards c LEFT JOIN mtg_sets s on c.cardSet=s.code WHERE '+where, whereArgs);
+    List<dynamic> setTypes = await _setTypeFilter();
+    if (setTypes!=null) {
+      where = where + setTypes[0];
+      whereArgs.addAll(setTypes[1]);
+    }
+    List<Map<String,dynamic>> maps = await db.rawQuery('SELECT DISTINCT c.name FROM mtg_cards c LEFT JOIN mtg_sets s on c.setCode=s.setCode WHERE '+where, whereArgs);
     return maps.map((e) => (e['name'] as String)).toList(growable: false);
   }
 
@@ -228,16 +224,24 @@ class MTGDB {
       return [];
     String pattern = _pattern.toLowerCase();
     Database db = await _database;
-    String where = 'name LIKE ?';
-    if (officialSetsOnly) {
-      where = where + ' AND LENGTH(code)<4';
-    }
-    if (expansionsOnly) {
-      where = where + ' AND setType = "expansion"';
-    }
+    String where = 'setName LIKE ?';
     List<String> whereArgs = ["%$pattern%"];
-    List<Map<String,dynamic>> maps = await db.query('mtg_sets', columns: ['name'] ,where: where, whereArgs: whereArgs, distinct: true);
-    return maps.map((e) => (e['name'] as String)).toList(growable: false);
+    List<dynamic> setTypes = await _setTypeFilter();
+    if (setTypes!=null) {
+      where = where + (setTypes[0] as String);
+      whereArgs.addAll(setTypes[1] as List<String>);
+    }
+    List<Map<String,dynamic>> maps = await db.query('mtg_sets', columns: ['setName'] ,where: where, whereArgs: whereArgs, distinct: true);
+    return maps.map((e) => (e['setName'] as String)).toList(growable: false);
+  }
+
+  static Future<List<dynamic>> _setTypeFilter() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    List<String> allSetTypes = await loadSetTypes();
+    Iterable<String> enabledSetTypes = allSetTypes.where((element) => prefs.containsKey('set_type_$element') && prefs.getBool('set_type_$element'));
+    String where = ' AND setType IN (${enabledSetTypes.map((e) => '?').join(',')})';
+    List<String> whereArgs = enabledSetTypes.toList(growable: false);
+    return [where, whereArgs];
   }
 
   static void closeDB() {
@@ -256,14 +260,14 @@ class MTGDB {
           return db.transaction((txn) async {
             txn.execute('''
               CREATE TABLE mtg_sets(
-                code TEXT PRIMARY KEY,
-                name TEXT,
+                setCode TEXT PRIMARY KEY,
+                setName TEXT,
                 cardCount INTEGER,
                 setType TEXT,
                 releasedAt TEXT,
                 blockCode TEXT,
                 block TEXT,
-                iconScvURI TEXT,
+                iconSvgURI TEXT,
                 searchURI TEXT,
                 digital INTEGER
               );
@@ -298,7 +302,7 @@ class MTGDB {
                 price_usdFoil TEXT,
                 price_eur TEXT,
                 rarity INTEGER,
-                cardSet TEXT,
+                setCode TEXT,
                 legalities_standard TEXT,
                 legalities_future TEXT,
                 legalities_historic TEXT,

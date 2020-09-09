@@ -1,4 +1,5 @@
 import 'package:MTGMoe/routes/settings_sets.dart';
+import 'package:MTGMoe/util/card_set_prefs.dart';
 import 'package:MTGMoe/util/settings_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -80,65 +81,21 @@ class _SettingsTabState extends State<SettingsTab> {
                 ),
               ),
               _buildUpdateInfo(context, model),
-              Divider(color: MoeStyle.defaultDecorationColor),
+              Divider(color: Colors.white),
               settingRow(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text('Show only official sets', style: MoeStyle.defaultText),
+                child: FlatButton(
+                  onPressed: () { Navigator.of(context).push(
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) => SettingsSetTypes(setTypes: getPrefsSetTypes()),
+                      transitionsBuilder: (context, animation, secondaryAnimation, child) => SlideTransition(
+                        child: child,
+                        position: animation.drive(Tween(begin: Offset(1.0, 0.0), end: Offset.zero)),
                       ),
-                    ),
-                    PlatformSwitch(
-                      value: MTGDB.officialSetsOnly,
-                      onChanged: (val) { setState(() {
-                        MTGDB.officialSetsOnly = !MTGDB.officialSetsOnly;
-                        SharedPreferences.getInstance().then((prefs) => prefs.setBool('show_only_official_sets', MTGDB.officialSetsOnly));
-                        MTGDB.invalidate();
-                      }); },
+                      transitionDuration: Duration(milliseconds: 150)
                     )
-                  ],
-                ),
-              ),
-              settingRow(
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: Text('Show expansions only', style: MoeStyle.defaultText),
-                      ),
-                    ),
-                    PlatformSwitch(
-                      value: MTGDB.expansionsOnly,
-                      onChanged: (val) { setState(() {
-                        MTGDB.expansionsOnly = !MTGDB.expansionsOnly;
-                        SharedPreferences.getInstance().then((prefs) => prefs.setBool('show_expansions_only', MTGDB.expansionsOnly));
-                        MTGDB.invalidate();
-                      }); },
-                    )
-                  ],
-                ),
-              ),
-              settingRow(
-                child: MaterialButton(
+                  );},
                   splashColor: Colors.transparent,
-                  color: Colors.transparent,
-                  elevation: 0,
                   padding: const EdgeInsets.all(0),
-                  onPressed: () {
-                    Navigator.of(context).push(
-                      PageRouteBuilder(
-                        pageBuilder: (context, animation, secondaryAnimation) => SettingsSetTypes(),
-                        transitionsBuilder: (context, animation, secondaryAnimation, child) => SlideTransition(
-                          child: child,
-                          position: animation.drive(Tween(begin: Offset(1.0, 0.0), end: Offset.zero)),
-                        ),
-                        transitionDuration: Duration(milliseconds: 100)
-                      )
-                    );
-                  },
                   child: Row(
                     children: [
                       Expanded(

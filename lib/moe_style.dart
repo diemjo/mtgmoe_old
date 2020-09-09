@@ -7,6 +7,8 @@ abstract class MoeStyle {
     color: Color(0xffffbbff),
     fontSize: 18,
     decoration: TextDecoration.none,
+    fontStyle: FontStyle.normal,
+    fontWeight: FontWeight.normal
   );
 
   static const TextStyle defaultBoldText = TextStyle(

@@ -7,11 +7,19 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsSetTypes extends StatefulWidget {
+  Future<Map<String, bool>> setTypes;
+
+  SettingsSetTypes({@required this.setTypes});
+
   @override
-  _SettingsSetTypesState createState() => _SettingsSetTypesState();
+  _SettingsSetTypesState createState() => _SettingsSetTypesState(setTypes: setTypes);
 }
 
 class _SettingsSetTypesState extends State<SettingsSetTypes> {
+  Future<Map<String, bool>> setTypes;
+  Map<String, bool> loadedSetTypes;
+
+  _SettingsSetTypesState({@required this.setTypes});
 
   @override
   Widget build(BuildContext context) {
@@ -26,24 +34,21 @@ class _SettingsSetTypesState extends State<SettingsSetTypes> {
           ),
           backgroundColor: MoeStyle.defaultAppColor,
           body: FutureBuilder(
-            future: getSetTypeMap(),
+            future: setTypes,
             builder: (context, snapshot) {
               if (snapshot.hasError) {
                 return Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text('Error loading preferences: ${snapshot.error}'),
+                  child: Text('Error loading set preferences: ${snapshot.error}'),
                 );
               }
               else if (snapshot.connectionState==ConnectionState.waiting) {
-                return Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Center(
-                    child: PlatformCircularProgressIndicator(),
-                  ),
-                );
+                return Container();
               }
               else if (snapshot.connectionState==ConnectionState.done){
-                return _buildSetTypeSettings(snapshot.data);
+                if (this.loadedSetTypes==null)
+                  this.loadedSetTypes = snapshot.data;
+                return _buildSetTypeSettings(loadedSetTypes);
               }
               else {
                 print(snapshot.connectionState);
@@ -60,7 +65,16 @@ class _SettingsSetTypesState extends State<SettingsSetTypes> {
         shrinkWrap: true,
         slivers: [
           SliverList(
-            delegate: SliverChildBuilderDelegate((context, index) {
+            delegate: SliverChildBuilderDelegate((context, _index) {
+              if (_index==0) {
+                return Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(15.0),
+                      child: Text('SELECT SETS TO DISPLAY', style: MoeStyle.smallText),
+                    )
+                );
+              }
+              int index = _index-1;
               if (index < map.keys.length) {
                 String name = map.keys.elementAt(index);
                 bool enabled = map.values.elementAt(index);
@@ -80,7 +94,7 @@ class _SettingsSetTypesState extends State<SettingsSetTypes> {
                         child: PlatformSwitch(
                           value: enabled,
                           onChanged: (value) {
-                            SharedPreferences.getInstance().then((sp) => setState( () { sp.setBool(name, value); print(sp.get(name)); }) );
+                            SharedPreferences.getInstance().then((sp) => setState((){ setPrefsSetType(name, value); map[name]=value; }));
                           },
                         ),
                       ),

@@ -31,7 +31,7 @@ class MTGCard {
   @JsonKey(nullable: true, name: 'color_identity')
   List<String> colorIdentity;
 
-  @JsonKey(name: 'card_faces')
+  @JsonKey(nullable: true, name: 'card_faces')
   List<MTGCardFace> cardFaces;
 
   List<String> keywords;
@@ -155,7 +155,7 @@ class MTGCardHelper {
       'price_usdFoil': card.prices?.usdFoil,
       'price_eur': card.prices?.eur,
       'rarity': card.rarity,
-      'cardSet': card.set,
+      'setCode': card.set,
       'legalities_standard': card.legalities?.standard,
       'legalities_future': card.legalities?.future,
       'legalities_historic': card.legalities?.historic,
@@ -233,7 +233,7 @@ class MTGCardHelper {
         eur: map['price_eur'],
       ) : null,
       rarity: map['rarity'],
-      set: map['cardSet'],
+      set: map['setCode'],
       legalities: MTGCardLegalities(
         standard: map['legalities_standard'],
         future: map['legalities_future'],

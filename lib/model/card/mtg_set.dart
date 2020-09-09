@@ -52,8 +52,8 @@ class MTGSet {
 class MTGSetHelper {
   static Map<String, dynamic> toMap(MTGSet set) {
     return {
-      'code': set.code,
-      'name': set.name,
+      'setCode': set.code,
+      'setName': set.name,
       'cardCount': set.cardCount,
       'setType': set.setType,
       'releasedAt': set.releasedAt != null ? '${set.releasedAt.year}-${set.releasedAt.month >= 10 ? '' : '0'}${set.releasedAt.month}-${set.releasedAt.day >= 10 ? '' : '0' }${set.releasedAt.day}' : null,
@@ -67,8 +67,8 @@ class MTGSetHelper {
 
   static MTGSet fromMap(Map<String, dynamic> map) {
     return MTGSet(
-      code: map['code'],
-      name: map['name'],
+      code: map['setCode'],
+      name: map['setName'],
       cardCount: map['cardCount'],
       setType: map['setType'],
       releasedAt: DateTime.parse(map['releasedAt'] as String),

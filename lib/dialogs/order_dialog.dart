@@ -24,7 +24,7 @@ Widget orderWidgetBuilder(BuildContext context, Animation<double> animation, Ani
                 ),
                 Divider(color: MoeStyle.dividerColor),
                 Center(
-                  child: Text('(Press and hold to change order)', style: MoeStyle.smallText),
+                  child: Text('PRESS AND HOLD TO CHANGE ORDER', style: MoeStyle.smallText),
                 ),
                 Container(
                   height: 250,
@@ -89,7 +89,7 @@ List<Widget> _orderList(List<OrderType> orderTypes, void Function(void Function(
             Expanded(
                 child: Padding(
                   padding: const EdgeInsets.all(8.0),
-                  child: Text(CardOrder.getOrderName(orderTypes[index])),
+                  child: Text(CardOrder.getOrderName(orderTypes[index]), style: MoeStyle.defaultBoldText),
                 )
             ),
             SizedBox(

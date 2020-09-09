@@ -15,28 +15,23 @@ import 'package:MTGMoe/tabs/settings_tab.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  if (!prefs.containsKey('show_only_official_sets')) {
-    prefs.setBool('show_only_official_sets', false);
-    MTGDB.officialSetsOnly = false;
-  }
-  else {
-    MTGDB.officialSetsOnly = prefs.getBool('show_only_official_sets');
-  }
-  if (!prefs.containsKey('show_expansions_only')) {
-    prefs.setBool('show_expansions_only', true);
-    MTGDB.expansionsOnly = true;
-  }
-  else {
-    MTGDB.expansionsOnly = prefs.getBool('show_expansions_only');
-  }
-  await MTGDB.loadSets();
+  await initializePreferences();
   runApp(
     ChangeNotifierProvider<AppStateModel>(
       create: (_) => AppStateModel(),
       child: App(),
     )
   );
+}
+
+Future<void> initializePreferences() async {
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  List<String> defaultEnabledSetTypes = ['expansion', 'core', 'masterpiece'];
+  defaultEnabledSetTypes.forEach((setType) {
+    String prefKey = 'set_type_'+setType;
+    if (!prefs.containsKey(prefKey))
+      prefs.setBool(prefKey, true);
+  });
 }
 
 class App extends StatefulWidget {
