@@ -46,6 +46,9 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     final materialTheme = new ThemeData(
       primarySwatch: Colors.purple,
+      pageTransitionsTheme: PageTransitionsTheme(
+        builders: { TargetPlatform.android: CupertinoPageTransitionsBuilder() }
+      )
     );
     final materialDarkTheme = new ThemeData(
       brightness: Brightness.dark,

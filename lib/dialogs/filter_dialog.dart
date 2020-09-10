@@ -55,7 +55,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                   padding: const EdgeInsets.only(top: 5.0, left: 5.0),
                   child: Text('Name', style: MoeStyle.smallText),
                 ),
-                typeAheadTextField(nameController, MTGDB.loadNames, (v) { filter.name = v; }, null),
+                typeAheadTextField(nameController, MTGDB.loadNames,null, null),
                 Padding(
                   padding: const EdgeInsets.only(top: 5.0, left: 5.0),
                   child: Text('Card Text', style: MoeStyle.smallText),
@@ -75,7 +75,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                   padding: const EdgeInsets.only(top: 5.0, left: 5.0),
                   child: Text('Set', style: MoeStyle.smallText),
                 ),
-                typeAheadTextField(setController, MTGDB.loadSetNames, (v) { filter.set = v; }, null),
+                typeAheadTextField(setController, MTGDB.loadSetNames, null, null),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -96,11 +96,11 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                 Row(
                   children: [
                     Expanded(flex: 1,
-                      child: typeAheadTextField(typeController, MTGDB.loadTypeNames, (v) { filter.type = v; }, null),
+                      child: typeAheadTextField(typeController, MTGDB.loadTypeNames, null, null),
                     ),
                     VerticalDivider(color: MoeStyle.dividerColor, width: 10),
                     Expanded(flex: 1,
-                      child: typeAheadTextField(subtypeController, MTGDB.loadSubtypeNames, (v) { filter.subtype = v; }, null),
+                      child: typeAheadTextField(subtypeController, MTGDB.loadSubtypeNames, null, null),
                     ),
                   ],
                 ),//type textfield
@@ -351,6 +351,13 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                           color: MoeStyle.filterButtonColor,
                           child: Text('Filter', style: MoeStyle.defaultBoldText),
                           onPressed: () {
+                            filter.name = nameController.text;
+                            filter.text = textController.text;
+                            filter.set = setController.text;
+                            filter.type = typeController.text;
+                            filter.subtype = subtypeController.text;
+                            filter.power = powerController.text;
+                            filter.toughness = toughnessController.text;
                             Navigator.of(context).pop('Filter');
                           },
                         ),

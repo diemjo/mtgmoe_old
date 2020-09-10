@@ -7,19 +7,16 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsSetTypes extends StatefulWidget {
-  Future<Map<String, bool>> setTypes;
-
-  SettingsSetTypes({@required this.setTypes});
-
   @override
-  _SettingsSetTypesState createState() => _SettingsSetTypesState(setTypes: setTypes);
+  _SettingsSetTypesState createState() => _SettingsSetTypesState();
 }
 
 class _SettingsSetTypesState extends State<SettingsSetTypes> {
   Future<Map<String, bool>> setTypes;
-  Map<String, bool> loadedSetTypes;
 
-  _SettingsSetTypesState({@required this.setTypes});
+  _SettingsSetTypesState() {
+    setTypes =  getPrefsSetTypes();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -46,9 +43,7 @@ class _SettingsSetTypesState extends State<SettingsSetTypes> {
                 return Container();
               }
               else if (snapshot.connectionState==ConnectionState.done){
-                if (this.loadedSetTypes==null)
-                  this.loadedSetTypes = snapshot.data;
-                return _buildSetTypeSettings(loadedSetTypes);
+                return _buildSetTypeSettings(snapshot.data);
               }
               else {
                 print(snapshot.connectionState);
@@ -73,6 +68,9 @@ class _SettingsSetTypesState extends State<SettingsSetTypes> {
                       child: Text('SELECT SETS TO DISPLAY', style: MoeStyle.smallText),
                     )
                 );
+              }
+              if (map.length==0 && _index==1) {
+                  return Text('No sets downloaded yet.\nUpdate Database to select set types', style: MoeStyle.defaultText);
               }
               int index = _index-1;
               if (index < map.keys.length) {

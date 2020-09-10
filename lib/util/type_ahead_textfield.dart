@@ -15,7 +15,12 @@ Widget typeAheadTextField(TextEditingController controller, FutureOr<Iterable<St
       padding: const EdgeInsets.all(5),
       child: Align(
           alignment: Alignment.centerLeft,
-          child: Text(suggestion, textScaleFactor: 0.9)
+          child: Text(
+            suggestion,
+            style: TextStyle(fontSize: 18),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis
+          ),
       )
   );
   controller.selection = TextSelection.fromPosition(TextPosition(offset: controller.text.length));
@@ -25,13 +30,22 @@ Widget typeAheadTextField(TextEditingController controller, FutureOr<Iterable<St
       material: (context, platform) => TypeAheadField(
         textFieldConfiguration: TextFieldConfiguration(
           controller: controller,
-          decoration: InputDecoration(filled: true, fillColor: MoeStyle.defaultAppColor, border: UnderlineInputBorder(borderSide: BorderSide(color: MoeStyle.defaultIconColor))),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: MoeStyle.defaultAppColor,
+            border: UnderlineInputBorder(
+              borderSide: BorderSide(color: MoeStyle.defaultIconColor)
+            )
+          ),
           onChanged: onChanged,
           onEditingComplete: onEditingComplete,
           maxLines: 1,
           style: TextStyle(fontSize: 14),
         ),
-        suggestionsBoxDecoration: SuggestionsBoxDecoration(color: MoeStyle.defaultAppColor, hasScrollbar: false),
+        suggestionsBoxDecoration: SuggestionsBoxDecoration(
+            color: MoeStyle.defaultAppColor,
+            hasScrollbar: false
+        ),
         suggestionsCallback: suggestionFunction,
         itemBuilder: (context, suggestion) {
           return suggestionContent(suggestion);
@@ -44,7 +58,12 @@ Widget typeAheadTextField(TextEditingController controller, FutureOr<Iterable<St
       cupertino: (context, platform) => CupertinoTypeAheadField(
         textFieldConfiguration: CupertinoTextFieldConfiguration(
           controller: controller,
-          decoration: BoxDecoration(color: MoeStyle.defaultAppColor, border: Border(bottom: BorderSide(color: MoeStyle.defaultIconColor))),
+          decoration: BoxDecoration(
+            color: MoeStyle.defaultAppColor,
+            border: Border(
+              bottom: BorderSide(color: MoeStyle.defaultIconColor)
+            )
+          ),
           clearButtonMode: OverlayVisibilityMode.editing,
           onChanged: onChanged,
           onEditingComplete: onEditingComplete,
@@ -52,7 +71,11 @@ Widget typeAheadTextField(TextEditingController controller, FutureOr<Iterable<St
           style: TextStyle(fontSize: 14),
         ),
         suggestionsCallback: suggestionFunction,
-        suggestionsBoxDecoration: CupertinoSuggestionsBoxDecoration(color: MoeStyle.defaultAppColor, hasScrollbar: false),
+        suggestionsBoxDecoration: CupertinoSuggestionsBoxDecoration(
+            color: MoeStyle.defaultAppColor,
+            border: Border.all(color: MoeStyle.defaultDecorationColor),
+            hasScrollbar: false
+        ),
         itemBuilder: (context, suggestion) {
           return suggestionContent(suggestion);
         },

@@ -74,7 +74,7 @@ class _CardInfoState extends State<CardInfo> {
               if (index==0) {
                 return Container(
                   height: MediaQuery.of(context).size.width/2*(680.0/488.0),
-                  child: cardImages(card.id, card.name, 2)
+                  child: cardImages(card.id, card.name, 2, withDialog: true)
                 );
               }
               return Container(

@@ -26,6 +26,13 @@ class _CardsTabState extends State<CardsTab> {
   CardOrder dialogOrder;
   PageStorageKey _scrollKey = PageStorageKey('CardsTab');
 
+
+  @override
+  void dispose() {
+    MTGDB.closeDB();
+    super.dispose();
+  }
+
   void _filterDialog(AppStateModel model) {
     dialogFilter = CardFilter.fromFilter(model.filter);
     showGeneralDialog(

@@ -1,3 +1,5 @@
+import 'package:MTGMoe/dialogs/image_dialog.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
@@ -23,9 +25,8 @@ Widget cardTabContent(List<List<String>> cardIdNameList) {
               padding: const EdgeInsets.all(0),
               onPressed: () {
                 Navigator.of(context).push(
-                  MaterialPageRoute(
+                  CupertinoPageRoute(
                     builder: (context) => CardInfo(cardId: cardIdList[index], cardName: cardNameList[index]),
-                    settings: RouteSettings()
                   )
                 );
               },
@@ -56,7 +57,7 @@ Widget cardTabContent(List<List<String>> cardIdNameList) {
   }
 }
 
-Widget cardImages(String cardId, String cardName, int num) {
+Widget cardImages(String cardId, String cardName, int num,{bool withDialog=false}) {
   return FutureBuilder(
     future: getImages(cardId, num),
     builder: (context, snapshot) {
@@ -67,16 +68,16 @@ Widget cardImages(String cardId, String cardName, int num) {
             return Row(
               children: [
                 Expanded(
-                  child: images[0],
+                  child: withDialog ? imageDialogButton(context: context, child: images[0]) : images[0],
                 ),
                 Expanded(
-                  child: images[1],
+                  child:  withDialog ? imageDialogButton(context: context, child: images[1]) : images[1],
                 ),
               ],
             );
           }
           else {
-            return images[0];
+            return  withDialog ? imageDialogButton(context: context, child: images[0]) : images[0];
           }
         }
         else if (snapshot.connectionState == ConnectionState.waiting) {

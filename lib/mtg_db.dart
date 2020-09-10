@@ -9,7 +9,6 @@ import 'package:MTGMoe/model/card/mtg_set.dart';
 
 class MTGDB {
   static Future<Database> get _database => _openDB();
-  static Database database;
 
   static CardFilter _filter = CardFilter();
   static CardOrder _order = CardOrder(OrderType.DATE_DESC, OrderType.RARITY_DESC, OrderType.NUMBER_ASC, OrderType.CMC_DESC, OrderType.NAME_ASC);
@@ -20,6 +19,11 @@ class MTGDB {
   static void invalidate() {
     _cards = null;
     _sets = null;
+  }
+
+  static void closeDB() async {
+    Database db = await _database;
+    db.close();
   }
 
   static Future<List<List<String>>> loadCardIds({CardFilter filter, CardOrder order}) async {
@@ -152,8 +156,6 @@ class MTGDB {
     if (setTypes!=null) {
       where = where + setTypes[0];
       whereArgs.addAll(setTypes[1]);
-      print(where);
-      print(whereArgs);
     }
     String orderBy = order.types.map((e) => CardOrder.typeToSqlString(e)).join(',');
     if (orderBy==null)
@@ -244,14 +246,7 @@ class MTGDB {
     return [where, whereArgs];
   }
 
-  static void closeDB() {
-    if (database!=null && database.isOpen)
-      database.close();
-  }
-
   static Future<Database> _openDB() async {
-    if (database!=null && database.isOpen)
-      return database;
     return openDatabase(
         join(await getDatabasesPath(), 'mtg_moe_database.db'),
       version: 1,

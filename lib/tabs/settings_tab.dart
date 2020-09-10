@@ -1,6 +1,8 @@
+import 'package:MTGMoe/routes/settings_data.dart';
 import 'package:MTGMoe/routes/settings_sets.dart';
 import 'package:MTGMoe/util/card_set_prefs.dart';
 import 'package:MTGMoe/util/settings_row.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -84,16 +86,11 @@ class _SettingsTabState extends State<SettingsTab> {
               Divider(color: Colors.white),
               settingRow(
                 child: FlatButton(
-                  onPressed: () { Navigator.of(context).push(
-                    PageRouteBuilder(
-                      pageBuilder: (context, animation, secondaryAnimation) => SettingsSetTypes(setTypes: getPrefsSetTypes()),
-                      transitionsBuilder: (context, animation, secondaryAnimation, child) => SlideTransition(
-                        child: child,
-                        position: animation.drive(Tween(begin: Offset(1.0, 0.0), end: Offset.zero)),
-                      ),
-                      transitionDuration: Duration(milliseconds: 150)
-                    )
-                  );},
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      CupertinoPageRoute(builder: (context) => SettingsSetTypes())
+                    );
+                  },
                   splashColor: Colors.transparent,
                   padding: const EdgeInsets.all(0),
                   child: Row(
@@ -107,7 +104,30 @@ class _SettingsTabState extends State<SettingsTab> {
                       Icon(Icons.arrow_forward_ios, color: MoeStyle.defaultIconColor),
                     ],
                   ),
-                )
+                ),
+                top: true,
+              ),
+              settingRow(
+                  child: FlatButton(
+                    onPressed: () {
+                      Navigator.of(context).push(
+                          CupertinoPageRoute(builder: (context) => SettingsManageData())
+                      );
+                    },
+                    splashColor: Colors.transparent,
+                    padding: const EdgeInsets.all(0),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.all(8.0),
+                            child: Text('Manage local data', style: MoeStyle.defaultText),
+                          ),
+                        ),
+                        Icon(Icons.arrow_forward_ios, color: MoeStyle.defaultIconColor),
+                      ],
+                    ),
+                  )
               ),
             ],
           );
