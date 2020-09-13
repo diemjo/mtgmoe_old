@@ -4,7 +4,6 @@ import 'package:flutter/widgets.dart';
 
 import 'package:MTGMoe/moe_style.dart';
 import 'package:MTGMoe/util/settings_row.dart';
-import 'package:path/path.dart';
 
 class SettingsManageData extends StatefulWidget {
   @override
