@@ -1,4 +1,5 @@
 
+import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
 abstract class MoeStyle {
@@ -39,4 +40,10 @@ abstract class MoeStyle {
   static const Color filterButtonColor = Color(0xffdd22dd);
   static const Color dividerColor = Color(0xffffffff);
   static const Color defaultDecorationColor = Color(0xffff88ff);
+
+  static const Color forestColor = Colors.green;
+  static const Color plainsColor = Color(0xfffffbd5);
+  static const Color islandColor = Colors.lightBlue;
+  static const Color swampColor = Colors.black;
+  static const Color mountainColor = Colors.red;
 }

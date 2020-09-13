@@ -10,8 +10,6 @@ void imageDialog(BuildContext context, Image cardImage) {
     barrierLabel: 'Dismiss',
     transitionDuration: Duration(milliseconds: 100),
     transitionBuilder: (context, animation, secondaryAnimation, child) {
-      double w = MediaQuery.of(context).size.width;
-      double h = MediaQuery.of(context).size.height;
       return Transform.scale(scale: animation.value, child: child);
     },
   );

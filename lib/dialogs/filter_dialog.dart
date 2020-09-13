@@ -210,7 +210,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                 Row(
                   children: [
                     Expanded(
-                      child: _colorButton(filter.colors.contains('G'), Colors.green, 70, () {
+                      child: _colorButton(filter.colors.contains('G'), MoeStyle.forestColor, 70, () {
                         dialogSetState(() {
                           if (filter.colors.contains('G')) {
                             filter.colors.remove('G');
@@ -222,7 +222,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                       }),
                     ),
                     Expanded(
-                      child: _colorButton(filter.colors.contains('W'), Color(0xffffffbb), 70, () {
+                      child: _colorButton(filter.colors.contains('W'), MoeStyle.plainsColor, 70, () {
                         dialogSetState(() {
                           if (filter.colors.contains('W')) {
                             filter.colors.remove('W');
@@ -234,7 +234,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                       }),
                     ),
                     Expanded(
-                      child: _colorButton(filter.colors.contains('U'), Colors.lightBlue, 70, () {
+                      child: _colorButton(filter.colors.contains('U'), MoeStyle.islandColor, 70, () {
                         dialogSetState(() {
                           if (filter.colors.contains('U')) {
                             filter.colors.remove('U');
@@ -246,7 +246,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                       }),
                     ),
                     Expanded(
-                      child: _colorButton(filter.colors.contains('B'), Colors.black, 70, () {
+                      child: _colorButton(filter.colors.contains('B'), MoeStyle.swampColor, 70, () {
                         dialogSetState(() {
                           if (filter.colors.contains('B')) {
                             filter.colors.remove('B');
@@ -258,7 +258,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                       }),
                     ),
                     Expanded(
-                      child: _colorButton(filter.colors.contains('R'), Colors.red, 70, () {
+                      child: _colorButton(filter.colors.contains('R'), MoeStyle.mountainColor, 70, () {
                         dialogSetState(() {
                           if (filter.colors.contains('R')) {
                             filter.colors.remove('R');
