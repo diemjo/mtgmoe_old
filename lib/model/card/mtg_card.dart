@@ -66,10 +66,19 @@ class MTGCard {
   @JsonKey(toJson: rarityToJson, fromJson: rarityFromJson)
   int rarity;
 
-  String set;
+  @JsonKey(name: 'set')
+  String setCode;
+
+  @JsonKey(name: 'set_name')
+  String setName;
 
   MTGCardLegalities legalities;
 
+  @JsonKey(name: 'rulings_uri')
+  String rulingsURI;
+
+  @JsonKey(name: 'scryfall_uri')
+  String scryfallURI;
 
   MTGCard({
       this.multiverseIds,
@@ -92,7 +101,10 @@ class MTGCard {
       this.imageURIs,
       this.prices,
       this.rarity,
-      this.set,
+      this.setCode,
+      this.setName,
+      this.scryfallURI,
+      this.rulingsURI,
       this.legalities});
 
   factory MTGCard.fromJson(Map<String, dynamic> json) => _$MTGCardFromJson(json);
@@ -155,7 +167,8 @@ class MTGCardHelper {
       'price_usdFoil': card.prices?.usdFoil,
       'price_eur': card.prices?.eur,
       'rarity': card.rarity,
-      'setCode': card.set,
+      'setCode': card.setCode,
+      'setName': card.setName,
       'legalities_standard': card.legalities?.standard,
       'legalities_future': card.legalities?.future,
       'legalities_historic': card.legalities?.historic,
@@ -169,6 +182,8 @@ class MTGCardHelper {
       'legalities_brawl': card.legalities?.brawl,
       'legalities_duel': card.legalities?.duel,
       'legalities_oldschool': card.legalities?.oldschool,
+      'scryfallURI': card.scryfallURI,
+      'rulingsURI': card.rulingsURI,
       'cardFace0_colorIdentity': card.cardFaces?.atOrNull(0)?.colorIdentity?.join('|'),
       'cardFace0_manaCost': card.cardFaces?.atOrNull(0)?.manaCost,
       'cardFace0_imageURI_png': card.cardFaces?.atOrNull(0)?.imageURIs?.png,
@@ -233,7 +248,8 @@ class MTGCardHelper {
         eur: map['price_eur'],
       ) : null,
       rarity: map['rarity'],
-      set: map['setCode'],
+      setCode: map['setCode'],
+      setName: map['setName'],
       legalities: MTGCardLegalities(
         standard: map['legalities_standard'],
         future: map['legalities_future'],
@@ -249,6 +265,8 @@ class MTGCardHelper {
         duel: map['legalities_duel'],
         oldschool: map['legalities_oldschool'],
       ),
+      scryfallURI: map['scryfallURI'],
+      rulingsURI: map['rulingsURI'],
       cardFaces: (map['cardFace0_name']!=null) ? [
         MTGCardFace(
           colorIdentity: (map['cardFace0_colorIdentity'] as String)!=null ? (map['cardFace0_colorIdentity'] as String).split('|') : [],

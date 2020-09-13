@@ -71,6 +71,12 @@ class MTGDB {
     return maps.map((e) => e['setType'] as String).toList(growable: false);
   }
 
+  static Future<MTGSet> setFromCode(String code) async {
+    final Database db = await _database;
+    final List<Map<String, dynamic>> maps = await db.query('mtg_sets', where: 'setCode = ?', whereArgs: [code], limit: 1);
+    return maps.first!=null ? MTGSet.fromMap(maps.first) : null;
+  }
+
   static Future<void> saveCards(List<MTGCard> cards) async {
     _cards = null;
     final Database db = await _database;
@@ -298,6 +304,7 @@ class MTGDB {
                 price_eur TEXT,
                 rarity INTEGER,
                 setCode TEXT,
+                setName TEXT,
                 legalities_standard TEXT,
                 legalities_future TEXT,
                 legalities_historic TEXT,
@@ -311,6 +318,8 @@ class MTGDB {
                 legalities_brawl TEXT,
                 legalities_duel TEXT,
                 legalities_oldschool TEXT,
+                rulingsURI TEXT,
+                scryfallURI TEXT,
                 cardFace0_colorIdentity TEXT,
                 cardFace0_manaCost TEXT,
                 cardFace0_imageURI_png TEXT,
