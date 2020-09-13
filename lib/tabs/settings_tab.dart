@@ -1,25 +1,20 @@
 import 'package:MTGMoe/routes/settings_data.dart';
 import 'package:MTGMoe/routes/settings_sets.dart';
-import 'package:MTGMoe/util/card_set_prefs.dart';
 import 'package:MTGMoe/util/settings_row.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:provider/provider.dart';
 
 import 'package:MTGMoe/moe_style.dart';
 import 'package:MTGMoe/model/app_state_model.dart';
-import 'package:MTGMoe/mtg_db.dart';
 import 'package:MTGMoe/util/card_update.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsTab extends StatefulWidget {
   @override
   _SettingsTabState createState() => _SettingsTabState();
 }
 class _SettingsTabState extends State<SettingsTab> {
-  Stream<Map<String, Object>> _updateStream;
 
   @override
   void setState(fn) {
@@ -44,17 +39,16 @@ class _SettingsTabState extends State<SettingsTab> {
   void _updateDB() {
     var model = Provider.of<AppStateModel>(context, listen: false);
     switch(model.updateStatus) {
-      case UpdateStatus.DEFAULT:
+      case UpdateStatus.IDLE:
         model.doUpdate = true;
-        model.updateStatus = UpdateStatus.LOADING;
-        _updateStream = updateSets(model);
+        model.updateFuture = updateCards(model);
         break;
-      case UpdateStatus.LOADING:
-        model.doUpdate = false;
-        model.updateStatus = UpdateStatus.CANCELLED;
-        break;
-      case UpdateStatus.CANCELLED:
       default:
+        model.updateStatus = UpdateStatus.IDLE;
+        model.doUpdate = false;
+        model.cancelToken?.cancel();
+        model.cancelToken = null;
+        model.updateFuture = null;
     }
     model.update();
   }
@@ -74,7 +68,7 @@ class _SettingsTabState extends State<SettingsTab> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
                       Text(
-                        model.updateStatus == UpdateStatus.DEFAULT ? 'Update DB' : 'Cancel Update',
+                        model.updateStatus == UpdateStatus.IDLE ? 'Update DB' : 'Cancel Update',
                         style: MoeStyle.defaultText,
                       ),
                     ],
@@ -138,7 +132,7 @@ class _SettingsTabState extends State<SettingsTab> {
 
   Widget _buildUpdateInfo(BuildContext context, AppStateModel model) {
     switch(model.updateStatus) {
-      case UpdateStatus.DEFAULT:
+      case UpdateStatus.IDLE:
         return Container(
           height: 40.0,
           child: Row(
@@ -148,66 +142,64 @@ class _SettingsTabState extends State<SettingsTab> {
             ],
           ),
         );
-      case UpdateStatus.CANCELLED:
-      case UpdateStatus.LOADING:
+      case UpdateStatus.INITIALIZING:
+      case UpdateStatus.DOWNLOADING:
+      case UpdateStatus.STORING:
         return Container(
           height: 40.0,
-          child: StreamBuilder<Map<String, Object>>(
-            stream: _updateStream,
-            initialData: { 'set' : '_initial_data_', 'progress' : 0 },
+          child: FutureBuilder(
+            future: model.updateFuture,
             builder: (context, snapshot) {
-              if (snapshot.hasError || snapshot.data['set']=='_error_') {
-                print(snapshot.error);
+              if (snapshot.hasError) {
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text('Error Updating Sets: ${snapshot.hasError ? '': snapshot.data['error']}'),
+                  children: [
+                    Text(snapshot.error),
                   ],
                 );
               }
-              else if (model.updateStatus == UpdateStatus.CANCELLED) {
-                if (snapshot.data['set']=='_cancelled_') {
-                  WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
-                    setState(() {
-                      model.updateStatus = UpdateStatus.DEFAULT;
-                    });
-                  });
-                }
-                return Container(
-                  height: 40.0,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text('Cancelling Update'),
-                    ],
-                  ),
-                );
-              }
-              else if (snapshot.data['set']=='_initial_data_') {
+              else if (snapshot.hasData) {
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text('Updating'),
-                  ],
-                );
-              }
-              else if (snapshot.data['set']!='_finished_') {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text('Updating: ${snapshot.data['set'] as String}'),
-                    CircularProgressIndicator(value: snapshot.data['progress'] as double)
+                  children: [
+                    Text(snapshot.data['status']=='success' ? 'Successfully updated' : snapshot.data['status'] == 'cancel' ? 'Update cancelled' : 'error updating: ${snapshot.data['error']}')
                   ],
                 );
               }
               else {
-                model.updateStatus = UpdateStatus.DEFAULT;
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Text('Updated sets'),
-                  ],
-                );
+                switch (model.updateStatus) {
+                  case UpdateStatus.INITIALIZING:
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text('Initializing')
+                      ],
+                    );
+                  case UpdateStatus.DOWNLOADING:
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Downloading'),
+                        ),
+                        CircularProgressIndicator(value: model.updateProgress/100),
+                      ],
+                    );
+                  case UpdateStatus.STORING:
+                    return Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Text('Storing'),
+                        ),
+                        CircularProgressIndicator(value: model.updateProgress/100),
+                      ],
+                    );
+                  default:
+                    return Container();
+                }
               }
             },
           )

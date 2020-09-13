@@ -34,6 +34,8 @@ dependencies:
   flutter_keyboard_visibility: ^3.2.2
   reorderables: ^0.3.2
   shared_preferences: ^0.5.10
+  flutter_svg: ^0.18.1
+  dio: ^3.0.10
 
   #firebase_core: ^0.4.0+9
   #firebase_auth: ^0.14.0+5

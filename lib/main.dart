@@ -7,7 +7,6 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:MTGMoe/moe_style.dart';
-import 'package:MTGMoe/mtg_db.dart';
 import 'package:MTGMoe/model/app_state_model.dart';
 import 'package:MTGMoe/tabs/card_list_tab.dart';
 import 'package:MTGMoe/tabs/home_tab.dart';
@@ -109,27 +108,52 @@ class LandingPage extends StatefulWidget {
   _LandingPageState createState() => _LandingPageState();
 }
 
-class _LandingPageState extends State<LandingPage> {
+class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin{
 
   PlatformTabController _tabController;
 
-  final _items = (BuildContext context) => [
-    BottomNavigationBarItem(
-      title: Text('Home'),
-      icon: Icon(context.platformIcons.home, color: MoeStyle.navigationBarIconColor),
-      activeIcon: Icon(context.platformIcons.home, color: MoeStyle.navigationBarIconColorActive)
-    ),
-    BottomNavigationBarItem(
-      title: Text('Cards'),
-      icon: Icon(context.platformIcons.collections, color: MoeStyle.navigationBarIconColor),
-      activeIcon: Icon(context.platformIcons.collections, color: MoeStyle.navigationBarIconColorActive)
-    ),
-    BottomNavigationBarItem(
-      title: Text('Settings'),
-      icon: Icon(context.platformIcons.settings, color: MoeStyle.navigationBarIconColor),
-      activeIcon: Icon(context.platformIcons.settings, color: MoeStyle.navigationBarIconColorActive),
-    ),
-  ];
+  AnimationController rotationController;
+
+  List<BottomNavigationBarItem> _items(BuildContext context) {
+    return [
+      BottomNavigationBarItem(
+          title: Text('Home'),
+          icon: Icon(context.platformIcons.home,
+              color: MoeStyle.navigationBarIconColor),
+          activeIcon: Icon(context.platformIcons.home,
+              color: MoeStyle.navigationBarIconColorActive)
+      ),
+      BottomNavigationBarItem(
+          title: Text('Cards'),
+          icon: Icon(context.platformIcons.collections,
+              color: MoeStyle.navigationBarIconColor),
+          activeIcon: Icon(context.platformIcons.collections,
+              color: MoeStyle.navigationBarIconColorActive)
+      ),
+      BottomNavigationBarItem(
+        title: Text('Settings'),
+        icon: settingsAnimationWrap(
+            context: context,
+            child: Icon(context.platformIcons.settings, color: MoeStyle.navigationBarIconColor)),
+        activeIcon: settingsAnimationWrap(
+          context: context,
+          child: Icon(context.platformIcons.settings, color: MoeStyle.navigationBarIconColorActive),
+        ),
+      ),
+    ];
+  }
+
+  Widget settingsAnimationWrap({@required BuildContext context, @required Widget child}) {
+    if (rotationController != null && Provider.of<AppStateModel>(context).updateStatus!=UpdateStatus.IDLE) {
+      return AnimatedBuilder(
+        animation: rotationController,
+        child: child,
+        builder: (context, child) => Transform.rotate(angle: rotationController.value, child: child),
+      );
+    } else {
+      return child;
+    }
+  }
 
   Widget _contentBuilder(BuildContext context, int index) {
     switch (index) {
@@ -150,6 +174,10 @@ class _LandingPageState extends State<LandingPage> {
     super.initState();
     if (_tabController == null) {
       _tabController = PlatformTabController(initialIndex: 0);
+    }
+    if (rotationController == null) {
+      rotationController = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+      rotationController.repeat();
     }
   }
 

@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/foundation.dart';
 
@@ -5,22 +6,21 @@ import 'package:MTGMoe/model/filter.dart';
 import 'package:MTGMoe/model/order.dart';
 
 enum UpdateStatus {
-  DEFAULT,
-  LOADING,
-  SUCCESS,
-  ERROR,
-  CANCELLED
+  IDLE,
+  INITIALIZING,
+  DOWNLOADING,
+  STORING,
 }
 
 class AppStateModel extends ChangeNotifier {
 
-  UpdateStatus updateStatus = UpdateStatus.DEFAULT;
+  UpdateStatus updateStatus = UpdateStatus.IDLE;
 
-  String updateSet = "";
+  Future<Map<String, Object>> updateFuture;
+  CancelToken cancelToken;
 
-  int updateSetIndex = 0;
-
-  int updateSetIndexMax = 0;
+  int bytesFromDownload = 0;
+  int updateProgress = 0;
 
   bool doUpdate = false;
 
