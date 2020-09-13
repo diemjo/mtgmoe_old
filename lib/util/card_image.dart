@@ -11,7 +11,7 @@ import 'package:MTGMoe/model/card/mtg_card.dart';
 Future<List<Image>> getImages(String cardId, int num) async {
   MTGCard card = await MTGDB.loadCard(cardId);
   final String path = (await getApplicationDocumentsDirectory()).path;
-  if ((card.cardFaces?.length??0)>1) {
+  if ((card.cardFaces?.length??0)>1 && card.cardFaces[0].imageURIs?.png!=null) {
     File imageFile0 = File('$path/images/${cardId}_0.png');
     Image img0, img1;
     if(imageFile0.existsSync())
