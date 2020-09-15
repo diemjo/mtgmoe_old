@@ -56,56 +56,53 @@ class _SettingsSetTypesState extends State<SettingsSetTypes> {
   }
 
   Widget _buildSetTypeSettings(Map<String, bool> map) {
+    if (map.length==0) {
+      return Center(child: Text('No sets downloaded yet.\nUpdate Database to select set types', style: MoeStyle.defaultText, textAlign: TextAlign.center,));
+    }
     return CustomScrollView(
-        shrinkWrap: true,
-        slivers: [
-          SliverList(
-            delegate: SliverChildBuilderDelegate((context, _index) {
-              if (_index==0) {
-                return Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(15.0),
-                      child: Text('SELECT SETS TO DISPLAY', style: MoeStyle.smallText),
-                    )
-                );
-              }
-              if (map.length==0 && _index==1) {
-                  return Text('No sets downloaded yet.\nUpdate Database to select set types', style: MoeStyle.defaultText);
-              }
-              int index = _index-1;
-              if (index < map.keys.length) {
-                String name = map.keys.elementAt(index);
-                bool enabled = map.values.elementAt(index);
-                return settingRow(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                          child: Text(name.replaceAll('_', ' '), style: MoeStyle.defaultText),
-                        )
+      physics: BouncingScrollPhysics(),
+      slivers: [
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.all(15.0),
+            child: Center(child: Text('SELECT SETS TYPES TO DISPLAY', style: MoeStyle.smallText)),
+          ),
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+            if (index < map.keys.length) {
+              String name = map.keys.elementAt(index);
+              bool enabled = map.values.elementAt(index);
+              return settingRow(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Flexible(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                        child: Text(name.replaceAll('_', ' '), style: MoeStyle.defaultText),
+                      )
+                    ),
+                    Container(
+                      width: 60,
+                      height: 40,
+                      child: PlatformSwitch(
+                        value: enabled,
+                        onChanged: (value) {
+                          SharedPreferences.getInstance().then((sp) => setState((){ setPrefsSetType(name, value); map[name]=value; }));
+                        },
                       ),
-                      Container(
-                        width: 60,
-                        height: 40,
-                        child: PlatformSwitch(
-                          value: enabled,
-                          onChanged: (value) {
-                            SharedPreferences.getInstance().then((sp) => setState((){ setPrefsSetType(name, value); map[name]=value; }));
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
-              else {
-                return null;
-              }
-            }),
-          )
-        ]
+                    ),
+                  ],
+                ),
+              );
+            }
+            else {
+              return null;
+            }
+          }),
+        )
+      ]
     );
   }
 
