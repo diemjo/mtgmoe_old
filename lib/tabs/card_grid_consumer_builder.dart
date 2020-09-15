@@ -14,8 +14,8 @@ Widget cardTabContent(List<List<String>> cardIdNameList) {
     return SliverGrid(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
-        mainAxisSpacing: 5.0,
-        crossAxisSpacing: 5.0,
+        mainAxisSpacing: 3.0,
+        crossAxisSpacing: 3.0,
         childAspectRatio: 488.0 / 680.0,
       ),
       delegate: SliverChildBuilderDelegate(
