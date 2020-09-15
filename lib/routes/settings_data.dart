@@ -78,62 +78,62 @@ class _SettingsManageDataState extends State<SettingsManageData> {
   void _showDeleteDialog(BuildContext context, Future<void> onDelete()) {
     showDialog(
       context: context,
-      builder: _confirmDeleteDialog,
+      builder: (context) => _confirmDeleteDialog(context, onDelete),
       barrierDismissible: false,
-    ).then((value) {
-      if (value=='Delete') { onDelete().then((value) => setState((){})); }
-    });
+    );
   }
 
-}
-
-Widget _confirmDeleteDialog(BuildContext context) {
-  return Dialog(
-    elevation: 1,
-    child: SingleChildScrollView(
-      child: Container(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Text('Please confirm to delete local data', style: MoeStyle.defaultText, maxLines: 3),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
-                    child: RaisedButton(
-                      child: Text('Cancel', style: MoeStyle.defaultBoldText),
-                      onPressed: ()  {
-                        Navigator.of(context).pop('Cancel');
-                      },
+  Widget _confirmDeleteDialog(BuildContext context, Future<void> onDelete()) {
+    return Dialog(
+      elevation: 1,
+      child: SingleChildScrollView(
+        child: Container(
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text('Please confirm to delete local data', style: MoeStyle.defaultText, maxLines: 3),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
+                      child: RaisedButton(
+                        child: Text('Cancel', style: MoeStyle.defaultBoldText),
+                        onPressed: ()  {
+                          Navigator.of(context).pop('Cancel');
+                        },
+                      ),
                     ),
                   ),
-                ),
-                Divider(color: MoeStyle.dividerColor),
-                Expanded(
-                  flex: 1,
-                  child: Padding(
-                    padding: const EdgeInsets.only(top: 5.0, right: 5.0, left: 5.0),
-                    child: RaisedButton(
-                      color: MoeStyle.filterButtonColor,
-                      child: Text('Delete', style: MoeStyle.defaultBoldText),
-                      onPressed: () {
-                        Navigator.of(context).pop('Delete');
-                      },
+                  Divider(color: MoeStyle.dividerColor),
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.only(top: 5.0, right: 5.0, left: 5.0),
+                      child: RaisedButton(
+                        color: MoeStyle.filterButtonColor,
+                        child: Text('Delete', style: MoeStyle.defaultBoldText),
+                        onPressed: () {
+                          onDelete().then((value) {
+                            setState(() {});
+                            Navigator.of(context).pop('Delete');
+                          });
+                        },
+                      ),
                     ),
-                  ),
-                )
-              ],
-            ),
-          ],
+                  )
+                ],
+              ),
+            ],
+          ),
         ),
       ),
-    ),
-  );
+    );
+  }
 }
 
 Widget _fsSizeEntry(Future<int> future) {
