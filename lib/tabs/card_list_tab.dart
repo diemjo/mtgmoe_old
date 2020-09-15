@@ -28,8 +28,15 @@ class _CardsTabState extends State<CardsTab> {
 
 
   @override
+  void initState() {
+    super.initState();
+    print("Cards init");
+  }
+
+  @override
   void dispose() {
-    MTGDB.closeDB();
+    print("Cards dispose");
+    //MTGDB.closeDB();
     super.dispose();
   }
 
@@ -79,7 +86,7 @@ class _CardsTabState extends State<CardsTab> {
               children: <Widget>[
                 Expanded(
                   child: Container(
-                    height: 35,
+                    height: 40,
                     decoration: ShapeDecoration(color: Colors.white10, shape: RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(3)))),
                     child: typeAheadTextField(
                       searchController, MTGDB.loadNames,
@@ -98,12 +105,13 @@ class _CardsTabState extends State<CardsTab> {
                 SizedBox(
                   width: 35,
                   child: PlatformButton(
-                    materialFlat: (context, platform) =>  MaterialFlatButtonData(),
+                    materialFlat: (context, platform) =>  MaterialFlatButtonData(splashColor: Colors.transparent),
                     child: Icon(
                       Icons.filter_list,
                       color: MoeStyle.defaultIconColor,
+                      size: 30,
                     ),
-                    padding: EdgeInsets.zero,
+                    padding: EdgeInsets.all(0),
                     onPressed: () {
                       FocusScope.of(context).unfocus();
                       _filterDialog(model);
@@ -113,10 +121,11 @@ class _CardsTabState extends State<CardsTab> {
                 SizedBox(
                   width: 35,
                   child: PlatformButton(
-                    materialFlat: (context, platform) =>  MaterialFlatButtonData(),
+                    materialFlat: (context, platform) =>  MaterialFlatButtonData(splashColor: Colors.transparent),
                     child: Icon(
                       Icons.sort,
                       color: MoeStyle.defaultIconColor,
+                      size: 30,
                     ),
                     padding: EdgeInsets.zero,
                     onPressed: () {
@@ -161,10 +170,12 @@ class _CardsTabState extends State<CardsTab> {
               }
               return Flexible(
                 child: CustomScrollView(
+                  physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                   key: scrollKey,
-                  shrinkWrap: true,
+                  //shrinkWrap: true,
                   scrollDirection: Axis.vertical,
                   slivers: [
+                    CupertinoSliverRefreshControl(onRefresh: () async => setState((){ MTGDB.invalidate(); }), refreshIndicatorExtent: 50, refreshTriggerPullDistance: 150),
                     tabContent,
                   ],
                 ),
