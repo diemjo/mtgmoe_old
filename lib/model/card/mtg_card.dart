@@ -269,7 +269,7 @@ class MTGCardHelper {
       rulingsURI: map['rulingsURI'],
       cardFaces: (map['cardFace0_name']!=null) ? [
         MTGCardFace(
-          colorIdentity: (map['cardFace0_colorIdentity'] as String)!=null ? (map['cardFace0_colorIdentity'] as String).split('|') : [],
+          colorIdentity: (map['cardFace0_colorIdentity'] as String)!=null ? (map['cardFace0_colorIdentity'] as String).split('|') : null,
           manaCost: map['cardFace0_manaCost'],
           imageURIs: (map['cardFace0_imageURI_png']!=null) ? MTGCardImageURIs(
             png: map['cardFace0_imageURI_png'],
@@ -287,7 +287,7 @@ class MTGCardHelper {
           types: MTGCardTypes.fromTypesAndSubtypes(map['cardFace0_types'], map['cardFace0_subtypes']),
         ),
         MTGCardFace(
-          colorIdentity: (map['cardFace1_colorIdentity'] as String)!=null ? (map['cardFace1_colorIdentity'] as String).split('|') : [],
+          colorIdentity: (map['cardFace1_colorIdentity'] as String)!=null ? (map['cardFace1_colorIdentity'] as String).split('|') : null,
           manaCost: map['cardFace1_manaCost'],
           imageURIs: (map['cardFace1_imageURI_png']!=null) ? MTGCardImageURIs(
             png: map['cardFace1_imageURI_png'],
