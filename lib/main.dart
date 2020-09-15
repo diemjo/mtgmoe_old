@@ -45,6 +45,7 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     final materialTheme = new ThemeData(
       primarySwatch: Colors.purple,
+      bottomNavigationBarTheme: BottomNavigationBarThemeData(unselectedLabelStyle: MoeStyle.smallText),
       pageTransitionsTheme: PageTransitionsTheme(
         builders: { TargetPlatform.android: CupertinoPageTransitionsBuilder() }
       )
@@ -110,34 +111,35 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin{
 
-  PlatformTabController _tabController;
+  PlatformTabController _platformTabController;
+  TabController _tabController;
 
   AnimationController rotationController;
 
   List<BottomNavigationBarItem> _items(BuildContext context) {
     return [
       BottomNavigationBarItem(
-          title: Text('Home'),
-          icon: Icon(context.platformIcons.home,
+          label: 'Home',
+          icon: Icon(Icons.home,
               color: MoeStyle.navigationBarIconColor),
-          activeIcon: Icon(context.platformIcons.home,
+          activeIcon: Icon(Icons.home,
               color: MoeStyle.navigationBarIconColorActive)
       ),
       BottomNavigationBarItem(
-          title: Text('Cards'),
-          icon: Icon(context.platformIcons.collections,
+          label: 'Cards',
+          icon: Icon(Icons.collections,
               color: MoeStyle.navigationBarIconColor),
-          activeIcon: Icon(context.platformIcons.collections,
+          activeIcon: Icon(Icons.collections,
               color: MoeStyle.navigationBarIconColorActive)
       ),
       BottomNavigationBarItem(
-        title: Text('Settings'),
+        label: 'Settings',
         icon: settingsAnimationWrap(
             context: context,
-            child: Icon(context.platformIcons.settings, color: MoeStyle.navigationBarIconColor)),
+            child: Icon(Icons.settings, color: MoeStyle.navigationBarIconColor)),
         activeIcon: settingsAnimationWrap(
           context: context,
-          child: Icon(context.platformIcons.settings, color: MoeStyle.navigationBarIconColorActive),
+          child: Icon(Icons.settings, color: MoeStyle.navigationBarIconColorActive),
         ),
       ),
     ];
@@ -172,8 +174,11 @@ class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin
   @override
   void initState() {
     super.initState();
+    if (_platformTabController == null) {
+      _platformTabController = PlatformTabController(initialIndex: 0);
+    }
     if (_tabController == null) {
-      _tabController = PlatformTabController(initialIndex: 0);
+      _tabController = TabController(length: 3, vsync: this, initialIndex: 0);
     }
     if (rotationController == null) {
       rotationController = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
@@ -181,11 +186,33 @@ class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin
     }
   }
 
+
+  @override
+  void dispose() {
+    rotationController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
+    return Scaffold(
+      body: _contentBuilder(context, _tabController.index),
+      bottomNavigationBar: BottomAppBar(
+        child: BottomNavigationBar(
+          selectedItemColor: MoeStyle.defaultDecorationColor,
+          currentIndex: _tabController.index,
+          onTap: (value) {
+              setState(() {
+                _tabController.index = value;
+              });
+          },
+          items: _items(context),
+        ),
+      ),
+    );
     return PlatformTabScaffold(
       iosContentPadding: true,
-      tabController: _tabController,
+      tabController: _platformTabController,
       bodyBuilder: _contentBuilder,
       items: _items(context),
       pageBackgroundColor: MoeStyle.defaultAppColor,
