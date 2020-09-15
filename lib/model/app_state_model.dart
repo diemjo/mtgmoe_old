@@ -9,7 +9,6 @@ enum UpdateStatus {
   IDLE,
   INITIALIZING,
   DOWNLOADING,
-  STORING,
 }
 
 class AppStateModel extends ChangeNotifier {
@@ -29,5 +28,5 @@ class AppStateModel extends ChangeNotifier {
   }
 
   CardFilter filter = CardFilter();
-  CardOrder order = CardOrder(OrderType.DATE_DESC, OrderType.RARITY_DESC, OrderType.NUMBER_ASC, OrderType.CMC_DESC, OrderType.NAME_ASC);
+  CardOrder order = CardOrder(OrderType.DATE_DESC, OrderType.NUMBER_ASC, OrderType.RARITY_DESC, OrderType.CMC_DESC, OrderType.NAME_ASC);
 }
