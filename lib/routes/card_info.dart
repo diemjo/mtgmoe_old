@@ -1,15 +1,17 @@
-import 'package:MTGMoe/model/card/mtg_card_face.dart';
-import 'package:MTGMoe/model/card/mtg_set.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:MTGMoe/moe_style.dart';
 import 'package:MTGMoe/mtg_db.dart';
 import 'package:MTGMoe/tabs/card_grid_consumer_builder.dart';
 import 'package:MTGMoe/model/card/mtg_card.dart';
-import 'package:flutter_svg/flutter_svg.dart';
+import 'package:MTGMoe/model/card/mtg_card_face.dart';
+import 'package:MTGMoe/model/card/mtg_set.dart';
+import 'package:MTGMoe/util/extensions.dart';
+
 
 class CardInfo extends StatefulWidget {
   final String cardId, cardName;
@@ -105,16 +107,16 @@ class _CardInfoState extends State<CardInfo> {
     List<Widget> items = [];
     items.add(cardInfoEntry('NAME', textWithPadding(card.name), top: true));
     items.add(cardInfoEntry('SET', setName(card.setCode)));
-    if (card.cardFaces==null || card.cardFaces.length<2) {
+    if (card.cardFaces?.atOrNull(0)?.types==null && card.types!=null)
       items.add(cardInfoEntry('TYPE', textWithPadding(card.types.toJsonString())));
-      if (card.colorIdentity!=null)
-        items.add(cardInfoEntry('COLORS', colorInfo(card.colorIdentity)));
-      if (card.oracleText!=null && card.oracleText!='')
-        items.add(cardInfoEntry('TEXT', textWithPadding(card.oracleText)));
-      if (card.power!=null && card.toughness!=null)
-        items.add(cardInfoEntry('POWER / TOUGHNESS', textWithPadding('${card.power} / ${card.toughness}')));
-    }
-    else {
+    if (card.cardFaces?.atOrNull(0)?.colorIdentity==null && card.colorIdentity!=null)
+      items.add(cardInfoEntry('COLORS', colorInfo(card.colorIdentity)));
+    if (card.oracleText!=null && card.oracleText!='')
+      items.add(cardInfoEntry('TEXT', textWithPadding(card.oracleText)));
+    if (card.power!=null && card.toughness!=null)
+      items.add(cardInfoEntry('POWER / TOUGHNESS', textWithPadding('${card.power} / ${card.toughness}')));
+
+    if (card.cardFaces!=null && card.cardFaces.length>1) {
       List<Widget> frontItems = itemsForCardFace(card.cardFaces[0]);
 
       List<Widget> backItems = itemsForCardFace(card.cardFaces[1]);
