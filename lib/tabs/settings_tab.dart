@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:MTGMoe/routes/settings_data.dart';
 import 'package:MTGMoe/routes/settings_sets.dart';
 import 'package:MTGMoe/util/settings_row.dart';
@@ -26,13 +28,13 @@ class _SettingsTabState extends State<SettingsTab> {
   @override
   void initState() {
     super.initState();
-    //print("Settings init");
+    print("Settings init");
   }
 
 
   @override
   void dispose() {
-    //print("Settings dispose");
+    print("Settings dispose");
     super.dispose();
   }
 
@@ -62,18 +64,21 @@ class _SettingsTabState extends State<SettingsTab> {
           return Column(
             children: <Widget>[
               Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: RaisedButton(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Text(
-                        model.updateStatus == UpdateStatus.IDLE ? 'Update DB' : 'Cancel Update',
-                        style: MoeStyle.defaultText,
-                      ),
-                    ],
+                padding: const EdgeInsets.only(top: 20.0, left: 5.0, right: 5.0),
+                child: Container(
+                  height: 50,
+                  child: RaisedButton(
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          model.updateStatus == UpdateStatus.IDLE ? 'UPDATE DATABASE' : 'CANCEL UPDATE',
+                          style: MoeStyle.defaultText,
+                        ),
+                      ],
+                    ),
+                    onPressed: _updateDB,
                   ),
-                  onPressed: _updateDB,
                 ),
               ),
               _buildUpdateInfo(context, model),
@@ -138,23 +143,23 @@ class _SettingsTabState extends State<SettingsTab> {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Text('Update cards from database'),
+              Text('Update cards from remote database'),
             ],
           ),
         );
       case UpdateStatus.INITIALIZING:
       case UpdateStatus.DOWNLOADING:
-      case UpdateStatus.STORING:
         return Container(
           height: 40.0,
           child: FutureBuilder(
             future: model.updateFuture,
             builder: (context, snapshot) {
               if (snapshot.hasError) {
+                print(snapshot.error.toString());
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(snapshot.error),
+                    Text(snapshot.error.toString()),
                   ],
                 );
               }
@@ -181,20 +186,8 @@ class _SettingsTabState extends State<SettingsTab> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text('Downloading'),
+                          child: Text('Downloading cards' + (model.updateProgress!=null ? ': ${model.updateProgress}' : '')),
                         ),
-                        CircularProgressIndicator(value: model.updateProgress/100),
-                      ],
-                    );
-                  case UpdateStatus.STORING:
-                    return Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Text('Storing'),
-                        ),
-                        CircularProgressIndicator(value: model.updateProgress/100),
                       ],
                     );
                   default:
