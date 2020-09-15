@@ -28,9 +28,12 @@ Widget _imageDialogBuilder(BuildContext context, Animation animation, Animation 
 }
 
 Widget imageDialogButton({@required BuildContext context, @required Image child}) {
-  return MaterialButton(
-    padding: EdgeInsets.zero,
-    onPressed: () => imageDialog(context, child),
-    child: child,
+  return FittedBox(
+    child: MaterialButton(
+      splashColor: Colors.transparent,
+      padding: EdgeInsets.zero,
+      onPressed: () => imageDialog(context, child),
+      child: child,
+    ),
   );
 }
