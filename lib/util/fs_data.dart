@@ -26,8 +26,10 @@ Future<int> fsGetImagesSize() async {
 }
 
 Future<void> deleteDatabaseData() async {
+  await MTGDB.closeDB();
   final File dbFile = File(join(await getDatabasesPath(), 'mtg_moe_database.db'));
-  dbFile.deleteSync();
+  if (dbFile.existsSync())
+    dbFile.deleteSync();
   MTGDB.invalidate();
 }
 

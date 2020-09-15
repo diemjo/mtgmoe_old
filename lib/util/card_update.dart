@@ -17,7 +17,6 @@ Future<Map<String, dynamic>> updateCards(AppStateModel model) async {
     return {'status': 'error', 'error': '$setStatus: set update failed'};
   }
   Dio dio = Dio(BaseOptions(connectTimeout: 5000));
-  dio.transformer = JsonTransformer();
   CancelToken cancelToken = CancelToken();
 
   model.cancelToken = cancelToken;
@@ -26,16 +25,18 @@ Future<Map<String, dynamic>> updateCards(AppStateModel model) async {
     return {'status': 'error', 'error': '${bulkResponse.statusCode}: ${bulkResponse.statusMessage}'};
   }
   final downloadURI = bulkResponse.data['download_uri'] as String;
-  Response response;
   if (!model.doUpdate) {
     return {'status': 'cancel'};
   }
   model.updateStatus = UpdateStatus.DOWNLOADING;
   model.updateProgress = 0;
   model.update();
+  Response<ResponseBody> response;
   try {
-    response = await dio.get(downloadURI, cancelToken: cancelToken, onReceiveProgress: (current, total) {
+    response = await dio.get(downloadURI, cancelToken: cancelToken, options: Options(responseType: ResponseType.stream),
+        onReceiveProgress: (current, total) {
       model.bytesFromDownload = current;
+      print(model.bytesFromDownload);
       model.update();
       if (!model.doUpdate) {
         cancelToken.cancel();
@@ -48,80 +49,53 @@ Future<Map<String, dynamic>> updateCards(AppStateModel model) async {
   if (!model.doUpdate) {
     return {'status': 'cancel'};
   }
-  model.updateStatus = UpdateStatus.STORING;
-  model.updateProgress = 0;
-  model.update();
-  List<dynamic> cards = response.data;
-  List<MTGCard> cardSubset = [];
-  int progress = 0;
-  int saved = 0;
-  int total = cards.length;
-  while (cards.isNotEmpty) {
-    Map<String, dynamic> last = cards.removeLast();
-    cardSubset.add(MTGCard.fromJson(last));
-    if (cardSubset.length>=75) {
-      await MTGDB.saveCards(cardSubset);
-      saved += cardSubset.length;
-      if (progress<(100.0*saved/total).floor()) {
-        progress = (100.0*saved/total).floor();
-        model.updateProgress = progress;
-        model.update();
+  List<MTGCard> cards = [];
+  Future dbop = Future.delayed(Duration.zero);
+  Function reviver = (key, value) {
+    //print('$key: $value');
+    if (value is Map<String, dynamic> && value['object']=='card') {
+      //print(value);
+      cards.add(MTGCard.fromJson(value));
+      final currentCards = cards;
+      if (currentCards.length>=500) {
+        dbop = dbop.then((_) {
+          if (model.doUpdate)
+            MTGDB.saveCards(currentCards).then((_) {
+              model.updateProgress += currentCards.length;
+              model.update();
+            });
+        });
+        cards = [];
       }
-      cardSubset.clear();
-      if (!model.doUpdate) {
-        return {'status': 'cancel'};
-      }
+      return null;
     }
+    return value;
+  };
+  Completer completer = Completer();
+  response.data.stream.cast<List<int>>().transform(utf8.decoder).transform(JsonDecoder(reviver)).listen(null , onDone: () {
+    if(!completer.isCompleted)
+      completer.complete(null);
+  }, onError: (e) {
+    if(!completer.isCompleted)
+      completer.complete(e);
+  });
+  final error = await completer.future;
+  await dbop;
+  await MTGDB.saveCards(cards);
+  if (model.updateProgress!=null) {
+    model.updateProgress += cards.length;
+    model.update();
   }
-  await MTGDB.saveCards(cardSubset);
+  print('settings status to idle');
   model.updateStatus = UpdateStatus.IDLE;
-  model.cancelToken = null;
   model.update();
-  return {'status': 'success'};
-  /*List<Map<String, dynamic>> data = jsonDecode(response.data);
-  int len = data.length;
-  if (len>0) {
-    print(MTGCard.fromJson(data[0]).toMap());
-  }
-  for (int i=0; i<len; i+=100) {
-    List<MTGCard> cards = [];
-    for (int j=0; j<100 && i+j<len; j++) {
-      cards.add(MTGCard.fromJson(data[i+j]));
-    }
-    MTGDB.saveCards(cards);
-    print('saved: ${(i+100) < len ? i+100 : len}/$len');
-  }*/
-
-  /*final response = await http.get("https://api.scryfall.com/sets/");
-  if (response.statusCode == 200) {
-    var rootJson = jsonDecode(response.body);
-    var setListJson = rootJson['data'] as List;
-    List<MTGSet> savedSets = await MTGDB.loadSets();
-    List<MTGSet> sets = setListJson.map((e) => MTGSet.fromJson(e)).toList();
-    for(var i=0; i<sets.length; i++) {
-      MTGSet set = sets[i];
-      if (!set.digital && !savedSets.any((s) => s.code==set.code)) {
-        Map<String, Object> streamValue = { 'set' : set.name, 'progress': (i+1) / sets.length };
-        model.updateSet = set.name;
-        model.updateProgress = (i+1)/sets.length;
-        yield streamValue;
-        //print('adding ${set.name}\n');
-        sleep(Duration(milliseconds: 50));
-        if (await updateCards(model, set.searchURI))
-          await MTGDB.saveSets([set]);
-        model.update();
-        if (!model.doUpdate) {
-          yield { 'set': '_cancelled_' };
-          return;
-        }
-      }
-    }
-    model.updateSet = '';
-    yield { 'set': '_finished_' };
+  if (error==null) {
+    return {'status': 'success'};
   }
   else {
-    yield { 'set': '_error_', 'error': response.statusCode };
-  }*/
+    return {'status': 'error', 'error': error.toString()};
+  }
+
 }
 
 Future<int> _updateSets() async {
@@ -139,42 +113,7 @@ Future<int> _updateSets() async {
   return response.statusCode;
 }
 
-/*Future<bool> updateCards(AppStateModel model, String searchURI) async {
-  bool hasMore = true;
-  String uri = searchURI;
-  List<MTGCard> cards = [];
-  Stopwatch sw = Stopwatch();
-  sw.start();
-  while(hasMore) {
-    hasMore = false;
-    if (!model.doUpdate)
-      return false;
-    final response = await http.get(uri);
-    if (response.statusCode == 200) {
-      var rootJson = jsonDecode(response.body);
-      var cardListJson = rootJson['data'] as List;
-      int totalCards = rootJson['total_cards'] as int;
-      var cardListPart = cardListJson.map((e) => MTGCard.fromJson(e)).toList();
-      cards.addAll(cardListPart);
-      print('${cards.length}/$totalCards');
-      if (rootJson['has_more'] as bool) {
-        hasMore = true;
-        uri = rootJson['next_page'] as String;
-        sleep(Duration(milliseconds: 50));
-      }
-    }
-    else {
-      print(response.statusCode);
-    }
-  }
-  await MTGDB.saveCards(cards);
-  sw.stop();
-  print('updateCards(${cards.length}): ${sw.elapsedMilliseconds}ms');
-  return true;
-}
-*/
-
-class JsonTransformer extends DefaultTransformer {
+/*class JsonTransformer extends DefaultTransformer {
 
   @override
   Future transformResponse(RequestOptions options, ResponseBody response) {
@@ -182,4 +121,4 @@ class JsonTransformer extends DefaultTransformer {
       return super.transformResponse(options, response);
     return JsonDecoder().bind(utf8.decoder.bind(response.stream)).first;
   }
-}
+}*/
