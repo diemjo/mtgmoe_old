@@ -20,7 +20,7 @@ Widget orderWidgetBuilder(BuildContext context, Animation<double> animation, Ani
             child: Column(
               children: [
                 Center(
-                    child: Text('Card Order', style: MoeStyle.defaultBoldText)
+                    child: Text('CARD ORDER', style: MoeStyle.defaultBoldText)
                 ),
                 Divider(color: MoeStyle.dividerColor),
                 Center(
@@ -48,7 +48,7 @@ Widget orderWidgetBuilder(BuildContext context, Animation<double> animation, Ani
                       child: Padding(
                         padding: const EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
                         child: RaisedButton(
-                          child: Text('Cancel', style: MoeStyle.defaultBoldText),
+                          child: Text('CANCEL', style: MoeStyle.defaultBoldText),
                           onPressed: () => Navigator.of(context).pop('Cancel'),
                         ),
                       ),
@@ -60,7 +60,7 @@ Widget orderWidgetBuilder(BuildContext context, Animation<double> animation, Ani
                         padding: const EdgeInsets.only(top: 5.0, right: 5.0, left: 5.0),
                         child: RaisedButton(
                           color: MoeStyle.filterButtonColor,
-                          child: Text('Sort', style: MoeStyle.defaultBoldText),
+                          child: Text('SORT', style: MoeStyle.defaultBoldText),
                           onPressed: () {
                             Navigator.of(context).pop('Sort');
                           },

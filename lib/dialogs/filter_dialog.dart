@@ -33,14 +33,14 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                   alignment: Alignment.centerRight,
                   children: [
                     Center(
-                        child: Text('Card Filter', style: MoeStyle.defaultBoldText)
+                        child: Text('CARD FILTER', style: MoeStyle.defaultBoldText)
                     ),
                     SizedBox(
                       height: 20,
                       width: 50,
                       child: FlatButton(
                         padding: EdgeInsets.all(0),
-                        child: Text('clear', style: MoeStyle.smallText),
+                        child: Text('CLEAR', style: MoeStyle.smallText),
                         onPressed: () {
                           dialogSetState(() {
                             filter.clear();
@@ -53,27 +53,29 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                 Divider(color: MoeStyle.dividerColor),
                 Padding(
                   padding: const EdgeInsets.only(top: 5.0, left: 5.0),
-                  child: Text('Name', style: MoeStyle.smallText),
+                  child: Text('NAME', style: MoeStyle.smallText),
                 ),
                 typeAheadTextField(nameController, MTGDB.loadNames,null, null),
                 Padding(
                   padding: const EdgeInsets.only(top: 5.0, left: 5.0),
-                  child: Text('Card Text', style: MoeStyle.smallText),
+                  child: Text('CARD TEXT', style: MoeStyle.smallText),
                 ),
                 Container(
                   height: 40,
                   child: PlatformTextField(
                     onChanged: (v) { filter.text = v; },
                     material: (context, platform) =>
-                        MaterialTextFieldData(controller: textController, decoration: InputDecoration(filled: true, fillColor: MoeStyle.defaultAppColor)),
+                        MaterialTextFieldData(controller: textController,
+                            decoration: InputDecoration(filled: true, fillColor: MoeStyle.defaultAppColor)),
                     style: MoeStyle.textFieldStyle,
                     cupertino: (context, platform) =>
-                        CupertinoTextFieldData(controller: textController, decoration: BoxDecoration(color: MoeStyle.defaultAppColor), clearButtonMode: OverlayVisibilityMode.editing),
+                        CupertinoTextFieldData(controller: textController,
+                            decoration: BoxDecoration(color: MoeStyle.defaultAppColor, border: Border(bottom: BorderSide(color: MoeStyle.defaultIconColor))), clearButtonMode: OverlayVisibilityMode.editing),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 5.0, left: 5.0),
-                  child: Text('Set', style: MoeStyle.smallText),
+                  child: Text('SET', style: MoeStyle.smallText),
                 ),
                 typeAheadTextField(setController, MTGDB.loadSetNames, null, null),
                 Row(
@@ -82,13 +84,13 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(top: 5.0, left: 5.0),
-                        child: Text('Type', style: MoeStyle.smallText),
+                        child: Text('TYPE', style: MoeStyle.smallText),
                       ),
                     ),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(top: 5.0, left: 5.0),
-                        child: Text('Subtype', style: MoeStyle.smallText),
+                        child: Text('SUBTYPE', style: MoeStyle.smallText),
                       ),
                     ),
                   ],
@@ -110,13 +112,13 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(top: 5.0, left: 5.0),
-                        child: Text('Power', style: MoeStyle.smallText),
+                        child: Text('POWER', style: MoeStyle.smallText),
                       ),
                     ),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.only(top: 5.0, left: 5.0),
-                        child: Text('Toughness', style: MoeStyle.smallText),
+                        child: Text('TOUGHNESS', style: MoeStyle.smallText),
                       ),
                     ),
                   ],
@@ -128,20 +130,24 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                       Expanded(flex: 1,
                           child: PlatformTextField(
                             material: (context, platform) =>
-                                MaterialTextFieldData(controller: powerController, decoration: InputDecoration(filled: true, fillColor: MoeStyle.defaultAppColor)),
+                                MaterialTextFieldData(controller: powerController,
+                                    decoration: InputDecoration(filled: true, fillColor: MoeStyle.defaultAppColor)),
                             style: MoeStyle.textFieldStyle,
                             cupertino: (context, platform) =>
-                                CupertinoTextFieldData(controller: powerController, decoration: BoxDecoration(color: MoeStyle.defaultAppColor), clearButtonMode: OverlayVisibilityMode.editing),
+                                CupertinoTextFieldData(controller: powerController,
+                                    decoration: BoxDecoration(color: MoeStyle.defaultAppColor, border: Border(bottom: BorderSide(color: MoeStyle.defaultIconColor))), clearButtonMode: OverlayVisibilityMode.editing),
                           )
                       ),
                       VerticalDivider(color: Colors.transparent, width: 10),
                       Expanded(flex: 1,
                           child: PlatformTextField(
                             material: (context, platform) =>
-                                MaterialTextFieldData(controller: toughnessController, decoration: InputDecoration(filled: true, fillColor: MoeStyle.defaultAppColor)),
+                                MaterialTextFieldData(controller: toughnessController,
+                                    decoration: InputDecoration(filled: true, fillColor: MoeStyle.defaultAppColor)),
                             style: MoeStyle.textFieldStyle,
                             cupertino: (context, platform) =>
-                                CupertinoTextFieldData(controller: toughnessController, decoration: BoxDecoration(color: MoeStyle.defaultAppColor), clearButtonMode: OverlayVisibilityMode.editing),
+                                CupertinoTextFieldData(controller: toughnessController,
+                                    decoration: BoxDecoration(color: MoeStyle.defaultAppColor, border: Border(bottom: BorderSide(color: MoeStyle.defaultIconColor))), clearButtonMode: OverlayVisibilityMode.editing),
                           )
                       ),
                     ],
@@ -149,7 +155,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 5.0, left: 5.0),
-                  child: Text('Rarity', style: MoeStyle.smallText),
+                  child: Text('RARITY', style: MoeStyle.smallText),
                 ),
                 Row(
                   children: [
@@ -205,7 +211,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 5.0, left: 5.0),
-                  child: Text('Color', style: MoeStyle.smallText),
+                  child: Text('COLOR', style: MoeStyle.smallText),
                 ),
                 Row(
                   children: [
@@ -273,7 +279,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                 ),
                 Padding(
                   padding: const EdgeInsets.only(top: 5.0, left: 5.0),
-                  child: Text('Color Match', style: MoeStyle.smallText),
+                  child: Text('COLOR MATCH', style: MoeStyle.smallText),
                 ),
                 Row(
                   children: [
@@ -289,7 +295,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                           onPressed: () { dialogSetState(() {
                             filter.colorMatch = ColorMatch.MIN;
                           });},
-                          child: Text('Min', style: filter.colorMatch==ColorMatch.MIN ? MoeStyle.defaultText : MoeStyle.smallText),
+                          child: Text('MIN', style: filter.colorMatch==ColorMatch.MIN ? MoeStyle.defaultText : MoeStyle.smallText),
                         ),
                       ),
                     ),
@@ -305,7 +311,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                           onPressed: () { dialogSetState(() {
                             filter.colorMatch = ColorMatch.MAX;
                           });},
-                          child: Text('Max', style: filter.colorMatch==ColorMatch.MAX ? MoeStyle.defaultText : MoeStyle.smallText),
+                          child: Text('MAX', style: filter.colorMatch==ColorMatch.MAX ? MoeStyle.defaultText : MoeStyle.smallText),
                         ),
                       ),
                     ),
@@ -321,7 +327,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                           onPressed: () { dialogSetState(() {
                             filter.colorMatch = ColorMatch.EXACT;
                           });},
-                          child: Text('Exact', style: filter.colorMatch==ColorMatch.EXACT ? MoeStyle.defaultText : MoeStyle.smallText),
+                          child: Text('EXACT', style: filter.colorMatch==ColorMatch.EXACT ? MoeStyle.defaultText : MoeStyle.smallText),
                         ),
                       ),
                     ),
@@ -335,7 +341,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                       child: Padding(
                         padding: const EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
                         child: RaisedButton(
-                          child: Text('Cancel', style: MoeStyle.defaultBoldText),
+                          child: Text('CANCEL', style: MoeStyle.defaultBoldText),
                           onPressed: ()  {
                             Navigator.of(context).pop('Cancel');
                           },
@@ -349,7 +355,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                         padding: const EdgeInsets.only(top: 5.0, right: 5.0, left: 5.0),
                         child: RaisedButton(
                           color: MoeStyle.filterButtonColor,
-                          child: Text('Filter', style: MoeStyle.defaultBoldText),
+                          child: Text('FILTER', style: MoeStyle.defaultBoldText),
                           onPressed: () {
                             filter.name = nameController.text;
                             filter.text = textController.text;
