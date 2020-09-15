@@ -21,9 +21,9 @@ class MTGDB {
     _sets = null;
   }
 
-  static void closeDB() async {
+  static Future<void> closeDB() async {
     Database db = await _database;
-    db.close();
+    return db.close();
   }
 
   static Future<List<List<String>>> loadCardIds({CardFilter filter, CardOrder order}) async {
