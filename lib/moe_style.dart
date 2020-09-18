@@ -26,6 +26,14 @@ abstract class MoeStyle {
     decoration: TextDecoration.none,
   );
 
+  static const TextStyle greyText = TextStyle(
+      color: Color(0xff777777),
+      fontSize: 14,
+      decoration: TextDecoration.none,
+      fontStyle: FontStyle.normal,
+      fontWeight: FontWeight.normal
+  );
+
   static const TextStyle textFieldStyle = TextStyle(
     color: Color(0xffcccccc),
     fontSize: 16,
