@@ -26,19 +26,35 @@ Widget orderWidgetBuilder(BuildContext context, Animation<double> animation, Ani
                 Center(
                   child: Text('PRESS AND HOLD TO CHANGE ORDER', style: MoeStyle.smallText),
                 ),
-                Container(
-                  height: 250,
-                  child: ReorderableColumn(
-                    scrollController: ScrollController(),
-                    onReorder: (oldIndex, newIndex) {
-                      dialogSetState((){
-                        OrderType oldType = order.types[oldIndex];
-                        order.types.removeAt(oldIndex);
-                        order.types.insert(newIndex, oldType);
-                      });
-                    },
-                    children: _orderList(order.types, dialogSetState),
-                  ),
+                Row(
+                  children: [
+                    Column(
+                      children: List.generate(5, (index) =>
+                        Container(
+                          alignment: Alignment.center,
+                          height: 50,
+                          width: 27,
+                          child: Text('${index+1}.', style: MoeStyle.defaultBoldText),
+                        )
+                      ),
+                    ),
+                    Flexible(
+                      child: Container(
+                        height: 250,
+                        child: ReorderableColumn(
+                          scrollController: ScrollController(),
+                          onReorder: (oldIndex, newIndex) {
+                            dialogSetState((){
+                              OrderType oldType = order.types[oldIndex];
+                              order.types.removeAt(oldIndex);
+                              order.types.insert(newIndex, oldType);
+                            });
+                          },
+                          children: _orderList(order.types, dialogSetState),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
