@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -11,6 +13,9 @@ import 'package:MTGMoe/model/card/mtg_card.dart';
 import 'package:MTGMoe/model/card/mtg_card_face.dart';
 import 'package:MTGMoe/model/card/mtg_set.dart';
 import 'package:MTGMoe/util/extensions.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:share/share.dart';
 
 
 class CardInfo extends StatefulWidget {
@@ -45,6 +50,25 @@ class _CardInfoState extends State<CardInfo> {
           toolbarHeight: 50,
           title: Text('Card Info', style: TextStyle(color: Colors.white), softWrap: true, maxLines: 2),
           backgroundColor: MoeStyle.filterButtonColor.withAlpha(100),
+          actions: [
+            FutureBuilder(
+              future: card,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return PopupMenuButton(itemBuilder: (context) => [
+                      PopupMenuItem<String>(child: Text('Share image'), value: 'image'),
+                      PopupMenuItem<String>(child: Text('Share url'), value: 'url'),
+                    ],
+                    onSelected: (value) { print(value); onMenuItemSelected(value, snapshot.data as MTGCard); },
+                    icon: Icon(PlatformIcons(context).share),
+                    enabled: true,
+                  );
+                  return Icon(CupertinoIcons.cloud_upload_fill, color: Colors.white);
+                }
+                return Container();
+              },
+            ),
+          ],
         ),
         backgroundColor: MoeStyle.defaultAppColor,
         body: FutureBuilder(
@@ -249,5 +273,47 @@ class _CardInfoState extends State<CardInfo> {
         ],
       );
     }
+  }
+
+  void onMenuItemSelected(String value, MTGCard card) async {
+    print(value);
+    switch (value) {
+      case 'image':
+        shareImage(card, card.imageURIs==null);
+        break;
+      case 'url':
+        shareURL(card.scryfallURI);
+        break;
+      default:
+    }
+  }
+
+  void shareImage(MTGCard card, bool two) async {
+    String cardId = card.id;
+    String dirPath = (await getApplicationDocumentsDirectory()).path;
+    List<String> paths = [];
+    if (two) {
+      File front = File(join(dirPath, 'images/${cardId}_0.png'));
+      if (front.existsSync()) {
+        paths.add(front.path);
+      }
+      File back = File(join(dirPath, 'images/${cardId}_1.png'));
+      if (back.existsSync()) {
+        paths.add(back.path);
+      }
+    }
+    else {
+      File f = File(join(dirPath, 'images/$cardId.png'));
+      if (f.existsSync()) {
+        paths.add(f.path);
+      }
+    }
+    print('sharing: $paths ($cardName)');
+    Share.shareFiles(paths, text: cardName);
+  }
+
+  void shareURL(String url) {
+    print('sharing: $url ($cardName)');
+    Share.share(url, subject: cardName);
   }
 }

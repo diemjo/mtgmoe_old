@@ -36,6 +36,7 @@ dependencies:
   shared_preferences: ^0.5.10
   flutter_svg: ^0.18.1
   dio: ^3.0.10
+  share: '>=0.6.5+1 <2.0.0'
 
   #firebase_core: ^0.4.0+9
   #firebase_auth: ^0.14.0+5
