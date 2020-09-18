@@ -25,7 +25,7 @@ class _CardsTabState extends State<CardsTab> {
   CardFilter dialogFilter;
   CardOrder dialogOrder;
   PageStorageKey _scrollKey = PageStorageKey('CardsTab');
-
+  ScrollController scrollController = ScrollController(initialScrollOffset: 25);
 
   @override
   void initState() {
@@ -54,7 +54,13 @@ class _CardsTabState extends State<CardsTab> {
         double h = MediaQuery.of(context).size.height;
         return Transform.scale(scale: animation.value, origin: Offset((0.82-0.5)*w, (0.09-0.5)*h), child: child);
       },
-    ).then((value) => setState((){ if (value=='Filter' && dialogFilter!=model.filter) model.filter=dialogFilter; }));
+    ).then((value) {
+      if (value=='Filter' && dialogFilter!=model.filter)
+        setState((){
+          model.filter = dialogFilter;
+          scrollController.jumpTo(25);
+        });
+    });
   }
 
   void _sortDialog(AppStateModel model) {
@@ -71,7 +77,12 @@ class _CardsTabState extends State<CardsTab> {
         double h = MediaQuery.of(context).size.height;
         return Transform.scale(scale: animation.value, origin: Offset((0.91-0.5)*w, (0.09-0.5)*h), child: child);
       },
-    ).then((value) => setState(() { if (value=='Sort' && dialogOrder!=model.order) model.order=dialogOrder; }));
+    ).then((value) {
+      if (value == 'Sort' && dialogOrder != model.order)
+        setState(() {
+          model.order = dialogOrder;
+      });
+    });
   }
 
   @override
@@ -142,6 +153,7 @@ class _CardsTabState extends State<CardsTab> {
             builder: (context, snapshot) {
               Widget tabContent;
               PageStorageKey scrollKey;
+              int listLength = 0;
               if (snapshot.connectionState==ConnectionState.waiting) {
                 tabContent = SliverToBoxAdapter(
                     child: Padding(
@@ -154,6 +166,7 @@ class _CardsTabState extends State<CardsTab> {
               }
               else if (snapshot.connectionState==ConnectionState.done && !snapshot.hasError) {
                 tabContent = cardTabContent(snapshot.data);
+                listLength = (snapshot.data as List<List<String>>).length;
                 scrollKey = _scrollKey;
               }
               else {
@@ -168,16 +181,28 @@ class _CardsTabState extends State<CardsTab> {
                   ),
                 );
               }
+              List<Widget> slivers = [
+                CupertinoSliverRefreshControl(onRefresh: () async => setState((){ MTGDB.invalidate(); }), refreshIndicatorExtent: 50, refreshTriggerPullDistance: 150),
+                tabContent,
+              ];
+              if (listLength>0) {
+                slivers.insert(1,
+                  SliverToBoxAdapter(
+                    child: Container(
+                      height: 25,
+                      child: Center(child: Text('$listLength results', style: MoeStyle.greyText)),
+                    ),
+                  )
+                );
+              }
               return Flexible(
                 child: CustomScrollView(
                   physics: BouncingScrollPhysics(parent: AlwaysScrollableScrollPhysics()),
                   key: scrollKey,
+                  controller: scrollController,
                   //shrinkWrap: true,
                   scrollDirection: Axis.vertical,
-                  slivers: [
-                    CupertinoSliverRefreshControl(onRefresh: () async => setState((){ MTGDB.invalidate(); }), refreshIndicatorExtent: 50, refreshTriggerPullDistance: 150),
-                    tabContent,
-                  ],
+                  slivers: slivers,
                 ),
               );
             },
