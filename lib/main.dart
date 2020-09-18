@@ -119,21 +119,21 @@ class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin
   List<BottomNavigationBarItem> _items(BuildContext context) {
     return [
       BottomNavigationBarItem(
-          label: 'Home',
+          title: Text('Home'),
           icon: Icon(Icons.home,
               color: MoeStyle.navigationBarIconColor),
           activeIcon: Icon(Icons.home,
               color: MoeStyle.navigationBarIconColorActive)
       ),
       BottomNavigationBarItem(
-          label: 'Cards',
+          title: Text('Cards'),
           icon: Icon(Icons.collections,
               color: MoeStyle.navigationBarIconColor),
           activeIcon: Icon(Icons.collections,
               color: MoeStyle.navigationBarIconColorActive)
       ),
       BottomNavigationBarItem(
-        label: 'Settings',
+        title: Text('Settings'),
         icon: settingsAnimationWrap(
             context: context,
             child: Icon(Icons.settings, color: MoeStyle.navigationBarIconColor)),

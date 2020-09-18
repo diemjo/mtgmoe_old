@@ -56,14 +56,13 @@ class _CardInfoState extends State<CardInfo> {
               builder: (context, snapshot) {
                 if (snapshot.hasData) {
                   return PopupMenuButton(itemBuilder: (context) => [
-                      PopupMenuItem<String>(child: Text('Share image'), value: 'image'),
-                      PopupMenuItem<String>(child: Text('Share url'), value: 'url'),
+                      PopupMenuItem<String>(child: Text((snapshot.data as MTGCard).imageURIs==null ? 'Share Images' : 'Share Image'), value: 'image'),
+                      PopupMenuItem<String>(child: Text('Share URL'), value: 'url'),
                     ],
                     onSelected: (value) { print(value); onMenuItemSelected(value, snapshot.data as MTGCard); },
                     icon: Icon(PlatformIcons(context).share),
                     enabled: true,
                   );
-                  return Icon(CupertinoIcons.cloud_upload_fill, color: Colors.white);
                 }
                 return Container();
               },
@@ -276,10 +275,9 @@ class _CardInfoState extends State<CardInfo> {
   }
 
   void onMenuItemSelected(String value, MTGCard card) async {
-    print(value);
     switch (value) {
       case 'image':
-        shareImage(card, card.imageURIs==null);
+        shareImages(card, card.imageURIs==null);
         break;
       case 'url':
         shareURL(card.scryfallURI);
@@ -288,7 +286,7 @@ class _CardInfoState extends State<CardInfo> {
     }
   }
 
-  void shareImage(MTGCard card, bool two) async {
+  void shareImages(MTGCard card, bool two) async {
     String cardId = card.id;
     String dirPath = (await getApplicationDocumentsDirectory()).path;
     List<String> paths = [];
@@ -314,6 +312,6 @@ class _CardInfoState extends State<CardInfo> {
 
   void shareURL(String url) {
     print('sharing: $url ($cardName)');
-    Share.share(url, subject: cardName);
+    Share.share('$cardName\n$url', subject: cardName);
   }
 }
