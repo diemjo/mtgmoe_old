@@ -6,43 +6,43 @@ part 'mtg_card_legalities.g.dart';
 class MTGCardLegalities {
 
   @JsonKey(nullable: true)
-  String standard;
+  String? standard;
 
   @JsonKey(nullable: true)
-  String future;
+  String? future;
 
   @JsonKey(nullable: true)
-  String historic;
+  String? historic;
 
   @JsonKey(nullable: true)
-  String pioneer;
+  String? pioneer;
 
   @JsonKey(nullable: true)
-  String modern;
+  String? modern;
 
   @JsonKey(nullable: true)
-  String legacy;
+  String? legacy;
 
   @JsonKey(nullable: true)
-  String pauper;
+  String? pauper;
 
   @JsonKey(nullable: true)
-  String vintage;
+  String? vintage;
 
   @JsonKey(nullable: true)
-  String penny;
+  String? penny;
 
   @JsonKey(nullable: true)
-  String commander;
+  String? commander;
 
   @JsonKey(nullable: true)
-  String brawl;
+  String? brawl;
 
   @JsonKey(nullable: true)
-  String duel;
+  String? duel;
 
   @JsonKey(nullable: true)
-  String oldschool;
+  String? oldschool;
 
 
   MTGCardLegalities({

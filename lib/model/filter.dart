@@ -4,21 +4,21 @@ enum ColorMatch {
   MAX,
 }
 class CardFilter {
-  String name;
-  String type;
-  String subtype;
-  String text;
-  String set;
-  String power;
-  String toughness;
-  List<String> rarities;
-  List<String> colors = List<String>();
-  ColorMatch colorMatch;
+  String? name;
+  String? type;
+  String? subtype;
+  String? text;
+  String? set;
+  String? power;
+  String? toughness;
+  List<String>? rarities;
+  List<String>? colors;
+  ColorMatch colorMatch = ColorMatch.MIN;
 
   CardFilter({this.name='', this.type='', this.subtype='', this.text='', this.set='',
       this.power='', this.toughness='', this.rarities, this.colors, this.colorMatch=ColorMatch.MIN}) {
     if (colors==null)
-      colors = List<String>();
+      colors = <String>[];
     if (rarities==null)
       rarities = ['common', 'uncommon', 'rare', 'mythic'];
   }
@@ -31,9 +31,9 @@ class CardFilter {
     this.set = filter.set??'';
     this.power = filter.power??'';
     this.toughness = filter.toughness??'';
-    this.rarities = filter.rarities?.toList()??List<String>();
-    this.colors = filter.colors?.toList()??List<String>();
-    this.colorMatch = filter.colorMatch??'';
+    this.rarities = filter.rarities?.toList()??<String>[];
+    this.colors = filter.colors?.toList()??<String>[];
+    this.colorMatch = filter.colorMatch;
   }
 
   @override
@@ -44,10 +44,10 @@ class CardFilter {
 
     bool colorsEqual = true;
     if (colors!=null && other.colors!=null) {
-      if (colors.length!=other.colors.length)
+      if (colors!.length!=other.colors!.length)
         colorsEqual = false;
       else
-        colorsEqual = colors.every((element) => other.colors.contains(element));
+        colorsEqual = colors!.every((element) => other.colors!.contains(element));
     }
     else if (colors==null && other.colors==null)
       colorsEqual = true;
@@ -56,10 +56,10 @@ class CardFilter {
 
     bool rarityEqual = true;
     if (rarities!=null && other.rarities!=null) {
-      if (rarities.length!=other.rarities.length)
+      if (rarities!.length!=other.rarities!.length)
         rarityEqual = false;
       else
-        rarityEqual = rarities.every((element) => other.rarities.contains(element));
+        rarityEqual = rarities!.every((element) => other.rarities!.contains(element));
     }
     else if (rarities==null && other.rarities==null)
       rarityEqual = true;
@@ -85,7 +85,7 @@ class CardFilter {
     set = '';
     power = '';
     toughness = '';
-    colors = List<String>();
+    colors = <String>[];
     colorMatch = ColorMatch.MIN;
     rarities = ['common', 'uncommon', 'rare', 'mythic'];
   }

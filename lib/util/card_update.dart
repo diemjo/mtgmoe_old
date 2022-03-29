@@ -4,10 +4,10 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:http/http.dart' as http;
 
-import 'package:MTGMoe/model/app_state_model.dart';
-import 'package:MTGMoe/mtg_db.dart';
-import 'package:MTGMoe/model/card/mtg_set.dart';
-import 'package:MTGMoe/model/card/mtg_card.dart';
+import 'package:mtgmoe/model/app_state_model.dart';
+import 'package:mtgmoe/mtg_db.dart';
+import 'package:mtgmoe/model/card/mtg_set.dart';
+import 'package:mtgmoe/model/card/mtg_card.dart';
 
 Future<Map<String, dynamic>> updateCards(AppStateModel model) async {
   model.updateStatus = UpdateStatus.INITIALIZING;
@@ -24,7 +24,7 @@ Future<Map<String, dynamic>> updateCards(AppStateModel model) async {
   if (bulkResponse.statusCode != 200) {
     return {'status': 'error', 'error': '${bulkResponse.statusCode}: ${bulkResponse.statusMessage}'};
   }
-  final downloadURI = bulkResponse.data['download_uri'] as String;
+  final downloadURI = bulkResponse.data['download_uri'] as String?;
   if (!model.doUpdate) {
     return {'status': 'cancel'};
   }
@@ -33,7 +33,7 @@ Future<Map<String, dynamic>> updateCards(AppStateModel model) async {
   model.update();
   Response<ResponseBody> response;
   try {
-    response = await dio.get(downloadURI, cancelToken: cancelToken, options: Options(responseType: ResponseType.stream),
+    response = await dio.get(downloadURI!, cancelToken: cancelToken, options: Options(responseType: ResponseType.stream),
         onReceiveProgress: (current, total) {
       model.bytesFromDownload = current;
       print(model.bytesFromDownload);
@@ -72,7 +72,7 @@ Future<Map<String, dynamic>> updateCards(AppStateModel model) async {
     return value;
   };
   Completer completer = Completer();
-  response.data.stream.cast<List<int>>().transform(utf8.decoder).transform(JsonDecoder(reviver)).listen(null , onDone: () {
+  response.data!.stream.cast<List<int>>().transform(utf8.decoder).transform(JsonDecoder(reviver as Object? Function(Object?, Object?)?)).listen(null , onDone: () {
     if(!completer.isCompleted)
       completer.complete(null);
   }, onError: (e) {
@@ -82,10 +82,8 @@ Future<Map<String, dynamic>> updateCards(AppStateModel model) async {
   final error = await completer.future;
   await dbop;
   await MTGDB.saveCards(cards);
-  if (model.updateProgress!=null) {
-    model.updateProgress += cards.length;
-    model.update();
-  }
+  model.updateProgress += cards.length;
+  model.update();
   print('settings status to idle');
   model.updateStatus = UpdateStatus.IDLE;
   model.update();
@@ -99,7 +97,7 @@ Future<Map<String, dynamic>> updateCards(AppStateModel model) async {
 }
 
 Future<int> _updateSets() async {
-  final response = await http.get("https://api.scryfall.com/sets/");
+  final response = await http.get(Uri.parse("https://api.scryfall.com/sets/"));
   if (response.statusCode == 200) {
     var rootJson = jsonDecode(response.body);
     var setListJson = rootJson['data'] as List;

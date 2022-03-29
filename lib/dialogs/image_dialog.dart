@@ -27,7 +27,7 @@ Widget _imageDialogBuilder(BuildContext context, Animation animation, Animation 
   );
 }
 
-Widget imageDialogButton({@required BuildContext context, @required Image child}) {
+Widget imageDialogButton({required BuildContext context, required Image child}) {
   return FittedBox(
     child: MaterialButton(
       splashColor: Colors.transparent,

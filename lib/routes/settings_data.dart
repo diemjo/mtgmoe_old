@@ -1,9 +1,9 @@
-import 'package:MTGMoe/util/fs_data.dart';
+import 'package:mtgmoe/util/fs_data.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:MTGMoe/moe_style.dart';
-import 'package:MTGMoe/util/settings_row.dart';
+import 'package:mtgmoe/moe_style.dart';
+import 'package:mtgmoe/util/settings_row.dart';
 
 class SettingsManageData extends StatefulWidget {
   @override
@@ -101,7 +101,7 @@ class _SettingsManageDataState extends State<SettingsManageData> {
                     flex: 1,
                     child: Padding(
                       padding: const EdgeInsets.only(top: 5.0, left: 5.0, right: 5.0),
-                      child: RaisedButton(
+                      child: ElevatedButton(
                         child: Text('Cancel', style: MoeStyle.defaultBoldText),
                         onPressed: ()  {
                           Navigator.of(context).pop('Cancel');
@@ -114,8 +114,8 @@ class _SettingsManageDataState extends State<SettingsManageData> {
                     flex: 1,
                     child: Padding(
                       padding: const EdgeInsets.only(top: 5.0, right: 5.0, left: 5.0),
-                      child: RaisedButton(
-                        color: MoeStyle.filterButtonColor,
+                      child: ElevatedButton(
+                        style: ElevatedButton.styleFrom(primary: MoeStyle.filterButtonColor),
                         child: Text('Delete', style: MoeStyle.defaultBoldText),
                         onPressed: () {
                           onDelete().then((value) {
@@ -150,7 +150,7 @@ Widget _fsSizeEntry(Future<int> future) {
         builder: (context, snapshot) {
           //print(snapshot.data);
           if (snapshot.hasError) {
-            return Text(snapshot.error);
+            return Text(snapshot.error as String);
           }
           else if (snapshot.connectionState!=ConnectionState.done) {
             return Padding(
@@ -162,7 +162,7 @@ Widget _fsSizeEntry(Future<int> future) {
 
             return Padding(
               padding: const EdgeInsets.all(8.0),
-              child: Text(_formatFileSize(snapshot.data)),
+              child: Text(_formatFileSize(snapshot.data as int)),
             );
           }
         },

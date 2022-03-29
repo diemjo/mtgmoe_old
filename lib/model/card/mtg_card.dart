@@ -1,11 +1,11 @@
 import 'package:json_annotation/json_annotation.dart';
 
-import 'package:MTGMoe/util/extensions.dart';
-import 'package:MTGMoe/model/card/mtg_card_face.dart';
-import 'package:MTGMoe/model/card/mtg_card_image_uris.dart';
-import 'package:MTGMoe/model/card/mtg_card_legalities.dart';
-import 'package:MTGMoe/model/card/mtg_card_prices.dart';
-import 'package:MTGMoe/model/card/mtg_card_type.dart';
+import 'package:mtgmoe/util/extensions.dart';
+import 'package:mtgmoe/model/card/mtg_card_face.dart';
+import 'package:mtgmoe/model/card/mtg_card_image_uris.dart';
+import 'package:mtgmoe/model/card/mtg_card_legalities.dart';
+import 'package:mtgmoe/model/card/mtg_card_prices.dart';
+import 'package:mtgmoe/model/card/mtg_card_type.dart';
 
 part 'mtg_card.g.dart';
 
@@ -13,26 +13,26 @@ part 'mtg_card.g.dart';
 class MTGCard {
 
   @JsonKey(nullable: true, name: 'multiverse_ids')
-  List<int> multiverseIds;
+  List<int?>? multiverseIds;
 
   String id;
 
   @JsonKey(name: 'oracle_id')
-  String oracleId;
+  String? oracleId;
 
   @JsonKey(name: 'collector_number')
   String collectorNumber;
 
-  double cmc;
+  double? cmc;
 
   @JsonKey(nullable: true, name: 'mana_cost')
-  String manaCost;
+  String? manaCost;
 
   @JsonKey(nullable: true, name: 'color_identity')
-  List<String> colorIdentity;
+  List<String>? colorIdentity;
 
   @JsonKey(nullable: true, name: 'card_faces')
-  List<MTGCardFace> cardFaces;
+  List<MTGCardFace>? cardFaces;
 
   List<String> keywords;
 
@@ -41,16 +41,16 @@ class MTGCard {
   String name;
 
   @JsonKey(nullable: true, name: 'oracle_text')
-  String oracleText;
+  String? oracleText;
 
   @JsonKey(nullable: true)
-  String power;
+  String? power;
 
   @JsonKey(nullable: true)
-  String toughness;
+  String? toughness;
 
   @JsonKey(nullable: true)
-  String loyalty;
+  String? loyalty;
 
   @JsonKey(name: 'type_line', fromJson: MTGCardTypes.typesFromJson, toJson: MTGCardTypes.typesToJson)
   MTGCardTypes types;
@@ -59,9 +59,9 @@ class MTGCard {
   bool fullArt;
 
   @JsonKey(nullable: true, name: 'image_uris')
-  MTGCardImageURIs imageURIs;
+  MTGCardImageURIs? imageURIs;
 
-  MTGCardPrices prices;
+  MTGCardPrices? prices;
 
   @JsonKey(toJson: rarityToJson, fromJson: rarityFromJson)
   int rarity;
@@ -82,30 +82,30 @@ class MTGCard {
 
   MTGCard({
       this.multiverseIds,
-      this.id,
-      this.oracleId,
-      this.collectorNumber,
-      this.cmc,
+      required this.id,
+      required this.oracleId,
+      required this.collectorNumber,
+      required this.cmc,
       this.manaCost,
       this.colorIdentity,
       this.cardFaces,
-      this.keywords,
-      this.layout,
-      this.name,
+      required this.keywords,
+      required this.layout,
+      required this.name,
       this.oracleText,
       this.power,
       this.toughness,
       this.loyalty,
-      this.types,
-      this.fullArt,
+      required this.types,
+      required this.fullArt,
       this.imageURIs,
       this.prices,
-      this.rarity,
-      this.setCode,
-      this.setName,
-      this.scryfallURI,
-      this.rulingsURI,
-      this.legalities});
+      required this.rarity,
+      required this.setCode,
+      required this.setName,
+      required this.scryfallURI,
+      required this.rulingsURI,
+      required this.legalities});
 
   factory MTGCard.fromJson(Map<String, dynamic> json) => _$MTGCardFromJson(json);
   Map<String, dynamic> toJson() => _$MTGCardToJson(this);
@@ -143,10 +143,10 @@ class MTGCardHelper {
       'multiverseId0': card.multiverseIds?.atOrNull(0),
       'multiverseId1': card.multiverseIds?.atOrNull(1),
       'oracleId': card.oracleId,
-      'collectorNumber': '0'*(3-(card.collectorNumber?.length??0))+(card.collectorNumber??''),
+      'collectorNumber': '0'*(3-(card.collectorNumber.length))+(card.collectorNumber),
       'cmc': card.cmc,
       'manaCost': card.manaCost,
-      'colorIdentity': card.colorIdentity.join('|'),
+      'colorIdentity': card.colorIdentity!.join('|'),
       'keywords': card.keywords.join('|'),
       'layout': card.layout,
       'name': card.name,
@@ -156,7 +156,7 @@ class MTGCardHelper {
       'loyalty': card.loyalty,
       'types': card.types.typesToMapString(),
       'subtypes': card.types.subtypesToMapString(),
-      'fullArt': card.fullArt ? 1 : 0,
+      'fullArt': card.fullArt? 1 : 0,
       'imageURI_png': card.imageURIs?.png,
       'imageURI_borderCrop': card.imageURIs?.png,
       'imageURI_artCrop': card.imageURIs?.artCrop,
@@ -169,19 +169,19 @@ class MTGCardHelper {
       'rarity': card.rarity,
       'setCode': card.setCode,
       'setName': card.setName,
-      'legalities_standard': card.legalities?.standard,
-      'legalities_future': card.legalities?.future,
-      'legalities_historic': card.legalities?.historic,
-      'legalities_pioneer': card.legalities?.pioneer,
-      'legalities_modern': card.legalities?.modern,
-      'legalities_legacy': card.legalities?.legacy,
-      'legalities_pauper': card.legalities?.pauper,
-      'legalities_vintage': card.legalities?.vintage,
-      'legalities_penny': card.legalities?.penny,
-      'legalities_commander': card.legalities?.commander,
-      'legalities_brawl': card.legalities?.brawl,
-      'legalities_duel': card.legalities?.duel,
-      'legalities_oldschool': card.legalities?.oldschool,
+      'legalities_standard': card.legalities.standard,
+      'legalities_future': card.legalities.future,
+      'legalities_historic': card.legalities.historic,
+      'legalities_pioneer': card.legalities.pioneer,
+      'legalities_modern': card.legalities.modern,
+      'legalities_legacy': card.legalities.legacy,
+      'legalities_pauper': card.legalities.pauper,
+      'legalities_vintage': card.legalities.vintage,
+      'legalities_penny': card.legalities.penny,
+      'legalities_commander': card.legalities.commander,
+      'legalities_brawl': card.legalities.brawl,
+      'legalities_duel': card.legalities.duel,
+      'legalities_oldschool': card.legalities.oldschool,
       'scryfallURI': card.scryfallURI,
       'rulingsURI': card.rulingsURI,
       'cardFace0_colorIdentity': card.cardFaces?.atOrNull(0)?.colorIdentity?.join('|'),
@@ -269,7 +269,7 @@ class MTGCardHelper {
       rulingsURI: map['rulingsURI'],
       cardFaces: (map['cardFace0_name']!=null) ? [
         MTGCardFace(
-          colorIdentity: (map['cardFace0_colorIdentity'] as String)!=null ? (map['cardFace0_colorIdentity'] as String).split('|') : null,
+          colorIdentity: (map['cardFace0_colorIdentity'] as String?)!=null ? (map['cardFace0_colorIdentity'] as String).split('|') : null,
           manaCost: map['cardFace0_manaCost'],
           imageURIs: (map['cardFace0_imageURI_png']!=null) ? MTGCardImageURIs(
             png: map['cardFace0_imageURI_png'],
@@ -287,7 +287,7 @@ class MTGCardHelper {
           types: MTGCardTypes.fromTypesAndSubtypes(map['cardFace0_types'], map['cardFace0_subtypes']),
         ),
         MTGCardFace(
-          colorIdentity: (map['cardFace1_colorIdentity'] as String)!=null ? (map['cardFace1_colorIdentity'] as String).split('|') : null,
+          colorIdentity: (map['cardFace1_colorIdentity'] as String?)!=null ? (map['cardFace1_colorIdentity'] as String).split('|') : null,
           manaCost: map['cardFace1_manaCost'],
           imageURIs: (map['cardFace1_imageURI_png']!=null) ? MTGCardImageURIs(
             png: map['cardFace1_imageURI_png'],

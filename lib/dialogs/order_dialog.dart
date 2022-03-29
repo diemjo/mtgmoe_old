@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:reorderables/reorderables.dart';
 
-import 'package:MTGMoe/moe_style.dart';
-import 'package:MTGMoe/model/order.dart';
+import 'package:mtgmoe/moe_style.dart';
+import 'package:mtgmoe/model/order.dart';
 
-Widget orderWidgetBuilder(BuildContext context, Animation<double> animation, Animation<double> secondAnimation, CardOrder order) {
+Widget orderWidgetBuilder(BuildContext context, Animation<double> animation, Animation<double> secondAnimation, CardOrder? order) {
   return Dialog(
     child: StatefulBuilder(
       builder: (context, dialogSetState) {
@@ -45,12 +45,12 @@ Widget orderWidgetBuilder(BuildContext context, Animation<double> animation, Ani
                           scrollController: ScrollController(),
                           onReorder: (oldIndex, newIndex) {
                             dialogSetState((){
-                              OrderType oldType = order.types[oldIndex];
-                              order.types.removeAt(oldIndex);
-                              order.types.insert(newIndex, oldType);
+                              OrderType oldType = order!.types![oldIndex];
+                              order.types!.removeAt(oldIndex);
+                              order.types!.insert(newIndex, oldType);
                             });
                           },
-                          children: _orderList(order.types, dialogSetState),
+                          children: _orderList(order!.types!, dialogSetState),
                         ),
                       ),
                     ),

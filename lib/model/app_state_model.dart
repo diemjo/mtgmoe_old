@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter/foundation.dart';
 
-import 'package:MTGMoe/model/filter.dart';
-import 'package:MTGMoe/model/order.dart';
+import 'package:mtgmoe/model/filter.dart';
+import 'package:mtgmoe/model/order.dart';
 
 enum UpdateStatus {
   IDLE,
@@ -15,8 +15,8 @@ class AppStateModel extends ChangeNotifier {
 
   UpdateStatus updateStatus = UpdateStatus.IDLE;
 
-  Future<Map<String, Object>> updateFuture;
-  CancelToken cancelToken;
+  Future<Map<String, Object>>? updateFuture;
+  CancelToken? cancelToken;
 
   int bytesFromDownload = 0;
   int updateProgress = 0;
@@ -27,6 +27,6 @@ class AppStateModel extends ChangeNotifier {
     notifyListeners();
   }
 
-  CardFilter filter = CardFilter();
-  CardOrder order = CardOrder(OrderType.DATE_DESC, OrderType.NUMBER_ASC, OrderType.RARITY_DESC, OrderType.CMC_DESC, OrderType.NAME_ASC);
+  CardFilter? filter = CardFilter();
+  CardOrder? order = CardOrder(OrderType.DATE_DESC, OrderType.NUMBER_ASC, OrderType.RARITY_DESC, OrderType.CMC_DESC, OrderType.NAME_ASC);
 }

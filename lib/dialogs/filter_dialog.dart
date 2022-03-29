@@ -2,12 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
-import 'package:MTGMoe/model/filter.dart';
-import 'package:MTGMoe/moe_style.dart';
-import 'package:MTGMoe/mtg_db.dart';
-import 'package:MTGMoe/util/type_ahead_textfield.dart';
+import 'package:mtgmoe/model/filter.dart';
+import 'package:mtgmoe/moe_style.dart';
+import 'package:mtgmoe/mtg_db.dart';
+import 'package:mtgmoe/util/type_ahead_textfield.dart';
 
-Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, Animation<double> secondAnimation, CardFilter filter) {
+Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, Animation<double> secondAnimation, CardFilter? filter) {
   return Dialog(
     child: StatefulBuilder(
       builder: (context, dialogSetState) {
@@ -43,7 +43,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                         child: Text('CLEAR', style: MoeStyle.smallText),
                         onPressed: () {
                           dialogSetState(() {
-                            filter.clear();
+                            filter!.clear();
                           });
                         },
                       ),
@@ -63,7 +63,7 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                 Container(
                   height: 40,
                   child: PlatformTextField(
-                    onChanged: (v) { filter.text = v; },
+                    onChanged: (v) { filter!.text = v; },
                     material: (context, platform) =>
                         MaterialTextFieldData(controller: textController,
                             decoration: InputDecoration(filled: true, fillColor: MoeStyle.defaultAppColor)),
@@ -160,49 +160,49 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                 Row(
                   children: [
                     Expanded(
-                      child: _colorButton(filter.rarities.contains('common'), Colors.black54, 70, () {
+                      child: _colorButton(filter!.rarities!.contains('common'), Colors.black54, 70, () {
                         dialogSetState(() {
-                          if (filter.rarities.contains('common')) {
-                            filter.rarities.remove('common');
+                          if (filter.rarities!.contains('common')) {
+                            filter.rarities!.remove('common');
                           }
                           else {
-                            filter.rarities.add('common');
+                            filter.rarities!.add('common');
                           }
                         });
                       }),
                     ), //rarityCommon
                     Expanded(
-                      child: _colorButton(filter.rarities.contains('uncommon'), Colors.white54, 70, () {
+                      child: _colorButton(filter.rarities!.contains('uncommon'), Colors.white54, 70, () {
                         dialogSetState(() {
-                          if (filter.rarities.contains('uncommon')) {
-                            filter.rarities.remove('uncommon');
+                          if (filter.rarities!.contains('uncommon')) {
+                            filter.rarities!.remove('uncommon');
                           }
                           else {
-                            filter.rarities.add('uncommon');
+                            filter.rarities!.add('uncommon');
                           }
                         });
                       }),
                     ), //rarityUncommon
                     Expanded(
-                      child: _colorButton(filter.rarities.contains('rare'), Colors.orangeAccent, 100, () {
+                      child: _colorButton(filter.rarities!.contains('rare'), Colors.orangeAccent, 100, () {
                         dialogSetState(() {
-                          if (filter.rarities.contains('rare')) {
-                            filter.rarities.remove('rare');
+                          if (filter.rarities!.contains('rare')) {
+                            filter.rarities!.remove('rare');
                           }
                           else {
-                            filter.rarities.add('rare');
+                            filter.rarities!.add('rare');
                           }
                         });
                       }),
                     ), //rarityRare
                     Expanded(
-                      child: _colorButton(filter.rarities.contains('mythic'), Colors.red, 100, () {
+                      child: _colorButton(filter.rarities!.contains('mythic'), Colors.red, 100, () {
                         dialogSetState(() {
-                          if (filter.rarities.contains('mythic')) {
-                            filter.rarities.remove('mythic');
+                          if (filter.rarities!.contains('mythic')) {
+                            filter.rarities!.remove('mythic');
                           }
                           else {
-                            filter.rarities.add('mythic');
+                            filter.rarities!.add('mythic');
                           }
                         });
                       }),
@@ -216,61 +216,61 @@ Widget filterWidgetBuilder(BuildContext context, Animation<double> animation, An
                 Row(
                   children: [
                     Expanded(
-                      child: _colorButton(filter.colors.contains('G'), MoeStyle.forestColor, 70, () {
+                      child: _colorButton(filter.colors!.contains('G'), MoeStyle.forestColor, 70, () {
                         dialogSetState(() {
-                          if (filter.colors.contains('G')) {
-                            filter.colors.remove('G');
+                          if (filter.colors!.contains('G')) {
+                            filter.colors!.remove('G');
                           }
                           else {
-                            filter.colors.add('G');
+                            filter.colors!.add('G');
                           }
                         });
                       }),
                     ),
                     Expanded(
-                      child: _colorButton(filter.colors.contains('W'), MoeStyle.plainsColor, 70, () {
+                      child: _colorButton(filter.colors!.contains('W'), MoeStyle.plainsColor, 70, () {
                         dialogSetState(() {
-                          if (filter.colors.contains('W')) {
-                            filter.colors.remove('W');
+                          if (filter.colors!.contains('W')) {
+                            filter.colors!.remove('W');
                           }
                           else {
-                            filter.colors.add('W');
+                            filter.colors!.add('W');
                           }
                         });
                       }),
                     ),
                     Expanded(
-                      child: _colorButton(filter.colors.contains('U'), MoeStyle.islandColor, 70, () {
+                      child: _colorButton(filter.colors!.contains('U'), MoeStyle.islandColor, 70, () {
                         dialogSetState(() {
-                          if (filter.colors.contains('U')) {
-                            filter.colors.remove('U');
+                          if (filter.colors!.contains('U')) {
+                            filter.colors!.remove('U');
                           }
                           else {
-                            filter.colors.add('U');
+                            filter.colors!.add('U');
                           }
                         });
                       }),
                     ),
                     Expanded(
-                      child: _colorButton(filter.colors.contains('B'), MoeStyle.swampColor, 70, () {
+                      child: _colorButton(filter.colors!.contains('B'), MoeStyle.swampColor, 70, () {
                         dialogSetState(() {
-                          if (filter.colors.contains('B')) {
-                            filter.colors.remove('B');
+                          if (filter.colors!.contains('B')) {
+                            filter.colors!.remove('B');
                           }
                           else {
-                            filter.colors.add('B');
+                            filter.colors!.add('B');
                           }
                         });
                       }),
                     ),
                     Expanded(
-                      child: _colorButton(filter.colors.contains('R'), MoeStyle.mountainColor, 70, () {
+                      child: _colorButton(filter.colors!.contains('R'), MoeStyle.mountainColor, 70, () {
                         dialogSetState(() {
-                          if (filter.colors.contains('R')) {
-                            filter.colors.remove('R');
+                          if (filter.colors!.contains('R')) {
+                            filter.colors!.remove('R');
                           }
                           else {
-                            filter.colors.add('R');
+                            filter.colors!.add('R');
                           }
                         });
                       }),

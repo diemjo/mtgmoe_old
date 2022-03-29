@@ -16,13 +16,13 @@ class MTGSet {
   String setType;
 
   @JsonKey(nullable: true, name: 'released_at', toJson: dateToJson, fromJson: dateFromJson)
-  DateTime releasedAt;
+  DateTime? releasedAt;
 
   @JsonKey(nullable: true, name: 'block_code')
-  String blockCode;
+  String? blockCode;
 
   @JsonKey(nullable: true)
-  String block;
+  String? block;
 
   @JsonKey(name: 'icon_svg_uri')
   String iconSvgURI;
@@ -32,8 +32,8 @@ class MTGSet {
 
   bool digital;
 
-  MTGSet({this.code, this.name, this.cardCount, this.setType,
-      this.releasedAt, this.blockCode, this.block, this.iconSvgURI, this.searchURI, this.digital});
+  MTGSet({required this.code, required this.name, required this.cardCount, required this.setType,
+      this.releasedAt, this.blockCode, this.block, required this.iconSvgURI, required this.searchURI, required this.digital});
 
   factory MTGSet.fromJson(Map<String, dynamic> json) => _$MTGSetFromJson(json);
   Map<String, dynamic> toJson() => _$MTGSetToJson(this);
@@ -44,8 +44,8 @@ class MTGSet {
     return DateTime.parse(json);
   }
 
-  static Map<String, dynamic> dateToJson(DateTime releasedAt) {
-    return { 'release_at': '${releasedAt.year}-${releasedAt.month >= 10 ? '' : '0'}${releasedAt.month}-${releasedAt.day >= 10 ? '' : '0' }${releasedAt.day}' };
+  static Map<String, dynamic> dateToJson(DateTime? releasedAt) {
+    return { 'release_at': '${releasedAt?.year??1970}-${(releasedAt?.month??1) >= 10 ? '' : '0'}${releasedAt?.month??1}-${(releasedAt?.day??1) >= 10 ? '' : '0' }${releasedAt?.day??1}' };
   }
 }
 
@@ -56,7 +56,7 @@ class MTGSetHelper {
       'setName': set.name,
       'cardCount': set.cardCount,
       'setType': set.setType,
-      'releasedAt': set.releasedAt != null ? '${set.releasedAt.year}-${set.releasedAt.month >= 10 ? '' : '0'}${set.releasedAt.month}-${set.releasedAt.day >= 10 ? '' : '0' }${set.releasedAt.day}' : null,
+      'releasedAt': set.releasedAt != null ? '${set.releasedAt!.year}-${set.releasedAt!.month >= 10 ? '' : '0'}${set.releasedAt!.month}-${set.releasedAt!.day >= 10 ? '' : '0' }${set.releasedAt!.day}' : null,
       'blockCode': set.blockCode,
       'block': set.block,
       'iconSvgURI': set.iconSvgURI,

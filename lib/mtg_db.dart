@@ -1,11 +1,13 @@
+import 'dart:async';
+
 import 'package:path/path.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sqflite/sqflite.dart';
 
-import 'package:MTGMoe/model/filter.dart';
-import 'package:MTGMoe/model/order.dart';
-import 'package:MTGMoe/model/card/mtg_card.dart';
-import 'package:MTGMoe/model/card/mtg_set.dart';
+import 'package:mtgmoe/model/filter.dart';
+import 'package:mtgmoe/model/order.dart';
+import 'package:mtgmoe/model/card/mtg_card.dart';
+import 'package:mtgmoe/model/card/mtg_set.dart';
 
 class MTGDB {
   static Future<Database> get _database => _openDB();
@@ -13,8 +15,8 @@ class MTGDB {
   static CardFilter _filter = CardFilter();
   static CardOrder _order = CardOrder(OrderType.DATE_DESC, OrderType.RARITY_DESC, OrderType.NUMBER_ASC, OrderType.CMC_DESC, OrderType.NAME_ASC);
 
-  static List<List<String>> _cards;
-  static List<MTGSet> _sets;
+  static List<List<String?>>? _cards;
+  static List<MTGSet>? _sets;
 
   static void invalidate() {
     _cards = null;
@@ -26,7 +28,7 @@ class MTGDB {
     return db.close();
   }
 
-  static Future<List<List<String>>> loadCardIds({CardFilter filter, CardOrder order}) async {
+  static Future<List<List<String?>>?> loadCardIds({CardFilter? filter, CardOrder? order}) async {
     if (_cards==null || (filter!=null && _filter!=filter) || (order!=null && _order!=order)) {
       _cards = null;
       if (order != null) {
@@ -46,7 +48,7 @@ class MTGDB {
     }
   }
 
-  static Future<MTGCard> loadCard(String id) async {
+  static Future<MTGCard?> loadCard(String? id) async {
     Database db = await _database;
     List<Map<String, dynamic>> maps = await db.query('mtg_cards', where: 'id = ?', whereArgs: [id]);
     if (maps.length>0) {
@@ -56,7 +58,7 @@ class MTGDB {
       return null;
   }
 
-  static Future<List<MTGSet>> loadSets() async {
+  static Future<List<MTGSet>?> loadSets() async {
     if (_sets==null) {
       final Database db = await _database;
       final List<Map<String, dynamic>> maps = await db.query('mtg_sets');
@@ -65,43 +67,41 @@ class MTGDB {
     return _sets;
   }
 
-  static Future<List<String>> loadSetTypes() async {
+  static Future<List<String?>> loadSetTypes() async {
     final Database db = await _database;
     final List<Map<String, dynamic>> maps = await db.query('mtg_sets', columns: ['setType'], groupBy: 'setType', distinct: true);
-    return maps.map((e) => e['setType'] as String).toList(growable: false);
+    return maps.map((e) => e['setType'] as String?).toList(growable: false);
   }
 
-  static Future<MTGSet> setFromCode(String code) async {
+  static Future<MTGSet> setFromCode(String? code) async {
     final Database db = await _database;
     final List<Map<String, dynamic>> maps = await db.query('mtg_sets', where: 'setCode = ?', whereArgs: [code], limit: 1);
-    return maps.first!=null ? MTGSet.fromMap(maps.first) : null;
+    return MTGSet.fromMap(maps.first);
   }
 
   static Future<void> saveCards(List<MTGCard> cards) async {
     _cards = null;
     final Database db = await _database;
-    await db.transaction((txn) {
+    await db.transaction((txn) async {
       for(MTGCard card in cards) {
         txn.insert('mtg_cards', card.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
       }
-      return;
     });
   }
 
   static Future<void> saveSets(List<MTGSet> sets) async {
     _sets = null;
     final Database db = await _database;
-    await db.transaction((txn) {
+    await db.transaction((txn) async {
       for(MTGSet set in sets) {
         txn.insert('mtg_sets', set.toMap(), conflictAlgorithm: ConflictAlgorithm.replace);
       }
-      return;
     });
   }
 
   static Future<List<Map<String, dynamic>>> createCardQuery(Database db, CardFilter filter, CardOrder order) async {
     String where = '1=1';
-    List<String> whereArgs = List<String>();
+    List<String?> whereArgs = <String?>[];
     if ((filter.name??'')!='') {
       where = where + ' AND c.name LIKE ?' ;
       whereArgs.add("%${filter.name}%");
@@ -118,25 +118,25 @@ class MTGDB {
       where = where + ' AND c.subtypes LIKE ?' ;
       whereArgs.add("%${filter.subtype}%");
     }
-    if (filter.rarities!=null && filter.rarities.length<4) {
-      where = where + ' AND c.rarity in (${filter.rarities?.map((e) => '?')?.join(',')??''})' ;
-      whereArgs.addAll(filter.rarities?.map((e) => MTGCard.rarityFromString(e).toString())?.toList()??List<String>(0));
+    if (filter.rarities!=null && filter.rarities!.length<4) {
+      where = where + ' AND c.rarity in (${filter.rarities?.map((e) => '?').join(',')??''})' ;
+      whereArgs.addAll(filter.rarities?.map((e) => MTGCard.rarityFromString(e).toString()).toList()??<String?>[]);
     }
     if (filter.colors!=null) {
       for (String color in ['B', 'G', 'R', 'U', 'W']) {
         switch(filter.colorMatch) {
           case ColorMatch.EXACT:
-            where = where + ' AND c.colorIdentity ' + (filter.colors.contains(color) ? '' : 'NOT ') + 'LIKE ?' ;
+            where = where + ' AND c.colorIdentity ' + (filter.colors!.contains(color) ? '' : 'NOT ') + 'LIKE ?' ;
             whereArgs.add("%$color%");
             break;
           case ColorMatch.MAX:
-            if (!filter.colors.contains(color)) {
+            if (!filter.colors!.contains(color)) {
               where = where + ' AND c.colorIdentity NOT LIKE ?' ;
               whereArgs.add("%$color%");
             }
             break;
           case ColorMatch.MIN:
-            if (filter.colors.contains(color)) {
+            if (filter.colors!.contains(color)) {
               where = where + ' AND c.colorIdentity LIKE ?' ;
               whereArgs.add("%$color%");
             }
@@ -153,19 +153,15 @@ class MTGDB {
       whereArgs.add(filter.toughness);
     }
     if ((filter.text??'')!='') {
-      for (String word in filter.text.split(' ')) {
+      for (String word in filter.text!.split(' ')) {
         where = where + ' AND c.oracleText LIKE ?';
         whereArgs.add("%$word%");
       }
     }
     List<dynamic> setTypes = await _setTypeFilter();
-    if (setTypes!=null) {
-      where = where + setTypes[0];
-      whereArgs.addAll(setTypes[1]);
-    }
-    String orderBy = order.types.map((e) => CardOrder.typeToSqlString(e)).join(',');
-    if (orderBy==null)
-      orderBy = "s.releasedAt DESC, c.rarity DESC";
+    where = where + setTypes[0];
+    whereArgs.addAll(setTypes[1]);
+    String orderBy = order.types!.map((e) => CardOrder.typeToSqlString(e)).join(',');
     return db.rawQuery('SELECT c.id, c.name FROM mtg_cards c LEFT JOIN mtg_sets s on c.setCode=s.setCode WHERE '+where+' ORDER BY '+orderBy, whereArgs);
   }
 
@@ -177,10 +173,8 @@ class MTGDB {
     String where = 'c.types LIKE ?';
     List<String> whereArgs = ["%$pattern%"];
     List<dynamic> setTypes = await _setTypeFilter();
-    if (setTypes!=null) {
-      where = where + setTypes[0];
-      whereArgs.addAll(setTypes[1]);
-    }
+    where = where + setTypes[0];
+    whereArgs.addAll(setTypes[1]);
     List<Map<String,dynamic>> maps = await db.rawQuery('SELECT DISTINCT c.types FROM mtg_cards c LEFT JOIN mtg_sets s on c.setCode=s.setCode WHERE '+where, whereArgs);
     Iterable<List<String>> types = maps.map((e) => (e['types'] as String).split(' '));
     Iterable<String> matchingTypes = types.expand((element) => element)
@@ -198,20 +192,18 @@ class MTGDB {
     String where = 'c.subtypes LIKE ?';
     List<String> whereArgs = ["%$pattern%"];
     List<dynamic> setTypes = await _setTypeFilter();
-    if (setTypes!=null) {
-      where = where + setTypes[0];
-      whereArgs.addAll(setTypes[1]);
-    }
+    where = where + setTypes[0];
+    whereArgs.addAll(setTypes[1]);
     List<Map<String,dynamic>> maps = await db.rawQuery('SELECT DISTINCT c.subtypes FROM mtg_cards c LEFT JOIN mtg_sets s on c.setCode=s.setCode WHERE '+where, whereArgs);
     Iterable<List<String>> types = maps.map((e) => (e['subtypes'] as String).split(' '));
     Iterable<String> matchingTypes = types.expand((element) => element)
         .where((element) => element!='' && element!='//' && element.toLowerCase().contains(pattern))
         .toSet()
         .toList(growable: false);
-    return matchingTypes;
+    return matchingTypes as FutureOr<List<String>>;
   }
 
-  static Future<List<String>> loadNames(String _pattern) async {
+  static Future<List<String?>> loadNames(String _pattern) async {
     if (_pattern.length < 1)
       return [];
     String pattern = _pattern.toLowerCase();
@@ -219,15 +211,13 @@ class MTGDB {
     String where = 'c.name LIKE ?';
     List<String> whereArgs = ["%$pattern%"];
     List<dynamic> setTypes = await _setTypeFilter();
-    if (setTypes!=null) {
-      where = where + setTypes[0];
-      whereArgs.addAll(setTypes[1]);
-    }
+    where = where + setTypes[0];
+    whereArgs.addAll(setTypes[1]);
     List<Map<String,dynamic>> maps = await db.rawQuery('SELECT DISTINCT c.name FROM mtg_cards c LEFT JOIN mtg_sets s on c.setCode=s.setCode WHERE '+where, whereArgs);
-    return maps.map((e) => (e['name'] as String)).toList(growable: false);
+    return maps.map((e) => (e['name'] as String?)).toList(growable: false);
   }
 
-  static Future<List<String>> loadSetNames(String _pattern) async {
+  static Future<List<String?>> loadSetNames(String _pattern) async {
     if (_pattern.length < 1)
       return [];
     String pattern = _pattern.toLowerCase();
@@ -235,20 +225,18 @@ class MTGDB {
     String where = 'setName LIKE ?';
     List<String> whereArgs = ["%$pattern%"];
     List<dynamic> setTypes = await _setTypeFilter();
-    if (setTypes!=null) {
-      where = where + (setTypes[0] as String);
-      whereArgs.addAll(setTypes[1] as List<String>);
-    }
+    where = where + (setTypes[0] as String);
+    whereArgs.addAll(setTypes[1] as List<String>);
     List<Map<String,dynamic>> maps = await db.query('mtg_sets', columns: ['setName'] ,where: where, whereArgs: whereArgs, distinct: true);
-    return maps.map((e) => (e['setName'] as String)).toList(growable: false);
+    return maps.map((e) => (e['setName'] as String?)).toList(growable: false);
   }
 
   static Future<List<dynamic>> _setTypeFilter() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    List<String> allSetTypes = await loadSetTypes();
-    Iterable<String> enabledSetTypes = allSetTypes.where((element) => prefs.containsKey('set_type_$element') && prefs.getBool('set_type_$element'));
+    List<String?> allSetTypes = await loadSetTypes();
+    Iterable<String?> enabledSetTypes = allSetTypes.where((element) => prefs.containsKey('set_type_$element') && prefs.getBool('set_type_$element')!);
     String where = ' AND setType IN (${enabledSetTypes.map((e) => '?').join(',')})';
-    List<String> whereArgs = enabledSetTypes.toList(growable: false);
+    List<String?> whereArgs = enabledSetTypes.toList(growable: false);
     return [where, whereArgs];
   }
 

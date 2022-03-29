@@ -1,53 +1,55 @@
-import 'package:MTGMoe/util/extensions.dart';
+import 'package:mtgmoe/util/extensions.dart';
 
 class MTGCardTypes {
-  List<String> types;
-  List<String> subtypes;
-  List<String> typesBack;
-  List<String> subtypesBack;
+  List<String>? types;
+  List<String>? subtypes;
+  List<String>? typesBack;
+  List<String>? subtypesBack;
 
   MTGCardTypes();
 
   String toJsonString() {
     String front = _frontString();
-    String back = _backString();
+    String? back = _backString();
     return back!=null ? front + ' // ' + back : front;
   }
 
   String _frontString() {
-    return subtypes!=null ? types.join(' ') + ' — ' + subtypes.join(' ') : types.join(' ');
+    return subtypes!=null ? types!.join(' ') + ' — ' + subtypes!.join(' ') : types!.join(' ');
   }
 
-  String _backString() {
+  String? _backString() {
     if (typesBack==null) return null;
-    return subtypesBack!=null ? typesBack.join(' ') + ' — ' + subtypesBack.join(' ') : typesBack?.join(' ');
+    return subtypesBack!=null ? typesBack!.join(' ') + ' — ' + subtypesBack!.join(' ') : typesBack?.join(' ');
   }
 
   String typesToMapString() {
+    if (types==null)
+      return '';
     if (typesBack!=null) {
-      return types.join(' ') + ' // ' + typesBack.join(' ');
+      return types!.join(' ') + ' // ' + typesBack!.join(' ');
     }
     else {
-      return types.join(' ');
+      return types!.join(' ');
     }
   }
 
-  String subtypesToMapString() {
+  String? subtypesToMapString() {
     if (typesBack!=null && subtypes!=null && subtypesBack!=null) {
-      return subtypes.join(' ') + ' // ' + subtypesBack.join(' ');
+      return subtypes!.join(' ') + ' // ' + subtypesBack!.join(' ');
     }
     else if (typesBack!=null && subtypes!=null) {
-      return subtypes.join(' ') + ' // ';
+      return subtypes!.join(' ') + ' // ';
     }
     else if (typesBack!=null && subtypesBack!=null) {
-      return ' // '+subtypesBack.join(' ');
+      return ' // '+subtypesBack!.join(' ');
     }
     else {
       return subtypes?.join(' ');
     }
   }
 
-  MTGCardTypes.fromTypesAndSubtypes(String types, String subtypes) {
+  MTGCardTypes.fromTypesAndSubtypes(String? types, String? subtypes) {
     if (types!=null) {
       //print('types: $types');
       this.types = types.split(' // ')[0].split(' ');
@@ -65,8 +67,9 @@ class MTGCardTypes {
   }
 
   static MTGCardTypes typesFromJson(dynamic json) {
-    if (json==null) return null;
     MTGCardTypes cardTypes = MTGCardTypes();
+    if (!(json is String))
+      return cardTypes;
     List<String> doubleFaceTypes = (json as String).split(' // ');
     if (doubleFaceTypes.length>0) {
       List<String> faceTypes = doubleFaceTypes[0].split(' — ');
@@ -81,8 +84,8 @@ class MTGCardTypes {
     return cardTypes;
   }
 
-  static Map<String, dynamic> typesToJson(MTGCardTypes types) {
-    return { 'type_line': types.toJsonString() };
+  static Map<String, dynamic> typesToJson(MTGCardTypes? types) {
+    return { 'type_line': types?.toJsonString() };
   }
 
   @override

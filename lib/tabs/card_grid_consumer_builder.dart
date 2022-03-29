@@ -1,16 +1,16 @@
-import 'package:MTGMoe/dialogs/image_dialog.dart';
+import 'package:mtgmoe/dialogs/image_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 
-import 'package:MTGMoe/moe_style.dart';
-import 'package:MTGMoe/routes/card_info.dart';
-import 'package:MTGMoe/util/card_image.dart';
+import 'package:mtgmoe/moe_style.dart';
+import 'package:mtgmoe/routes/card_info.dart';
+import 'package:mtgmoe/util/card_image.dart';
 
 Widget cardTabContent(List<List<String>> cardIdNameList) {
   List<String> cardIdList = cardIdNameList.map((e) => e[0]).toList();
   List<String> cardNameList = cardIdNameList.map((e) => e[1]).toList();
-  if (cardIdList != null && cardIdList.length > 0) {
+  if (cardIdList.length > 0) {
     return SliverGrid(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
@@ -57,27 +57,29 @@ Widget cardTabContent(List<List<String>> cardIdNameList) {
   }
 }
 
-Widget cardImages(String cardId, String cardName, int num,{bool withDialog=false}) {
+Widget cardImages(String? cardId, String? cardName, int num,{bool withDialog=false}) {
   return FutureBuilder(
     future: getImages(cardId, num),
     builder: (context, snapshot) {
       if (!snapshot.hasError) {
         if (snapshot.connectionState == ConnectionState.done) {
-          List<Image> images = (snapshot.data as List<Image>);
+          List<Image?> images = (snapshot.data as List<Image?>);
+          Image img0 = images[0]==null ? Image.asset('images/card_back.png') : images[0]!;
           if (images.length>1) {
+            Image img1 = images[1]==null ? Image.asset('images/card_back.png') : images[1]!;
             return Row(
               children: [
                 Expanded(
-                  child: withDialog ? imageDialogButton(context: context, child: images[0]) : images[0],
+                  child: withDialog ? imageDialogButton(context: context, child: img0) : img0,
                 ),
                 Expanded(
-                  child:  withDialog ? imageDialogButton(context: context, child: images[1]) : images[1],
+                  child:  withDialog ? imageDialogButton(context: context, child: img1) : img1,
                 ),
               ],
             );
           }
           else {
-            return  withDialog ? imageDialogButton(context: context, child: images[0]) : images[0];
+            return  withDialog ? imageDialogButton(context: context, child: img0) : img0;
           }
         }
         else if (snapshot.connectionState == ConnectionState.waiting) {
@@ -86,7 +88,7 @@ Widget cardImages(String cardId, String cardName, int num,{bool withDialog=false
       }
       print(snapshot.error);
       return Center(
-        child: Text(cardName),
+        child: Text(cardName!),
       );
     },
   );

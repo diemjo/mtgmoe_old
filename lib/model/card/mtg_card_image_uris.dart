@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:json_annotation/json_annotation.dart';
 
 part 'mtg_card_image_uris.g.dart';
@@ -6,22 +8,22 @@ part 'mtg_card_image_uris.g.dart';
 class MTGCardImageURIs {
 
   @JsonKey(nullable: true)
-  String png;
+  String? png;
 
   @JsonKey(nullable: true, name: 'border_crop')
-  String borderCrop;
+  String? borderCrop;
 
   @JsonKey(nullable: true, name: 'art_crop')
-  String artCrop;
+  String? artCrop;
 
   @JsonKey(nullable: true)
-  String large;
+  String? large;
 
   @JsonKey(nullable: true)
-  String normal;
+  String? normal;
 
   @JsonKey(nullable: true)
-  String small;
+  String? small;
 
 
   MTGCardImageURIs({this.png, this.borderCrop, this.artCrop, this.large,

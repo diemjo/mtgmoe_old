@@ -6,13 +6,13 @@ part 'mtg_card_prices.g.dart';
 class MTGCardPrices {
 
   @JsonKey(nullable: true)
-  String usd;
+  String? usd;
 
   @JsonKey(nullable: true, name: 'usd_foil')
-  String usdFoil;
+  String? usdFoil;
 
   @JsonKey(nullable: true)
-  String eur;
+  String? eur;
 
 
   MTGCardPrices({this.usd, this.usdFoil, this.eur});

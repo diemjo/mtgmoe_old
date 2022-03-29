@@ -1,7 +1,9 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:json_annotation/json_annotation.dart';
 
-import 'package:MTGMoe/model/card/mtg_card_image_uris.dart';
-import 'package:MTGMoe/model/card/mtg_card_type.dart';
+import 'package:mtgmoe/model/card/mtg_card_image_uris.dart';
+import 'package:mtgmoe/model/card/mtg_card_type.dart';
 
 part 'mtg_card_face.g.dart';
 
@@ -9,30 +11,30 @@ part 'mtg_card_face.g.dart';
 class MTGCardFace {
 
   @JsonKey(nullable: true, name: 'color_identity')
-  List<String> colorIdentity;
+  List<String>? colorIdentity;
 
   @JsonKey(nullable: true, name: 'mana_cost')
-  String manaCost;
+  String? manaCost;
 
   @JsonKey(nullable: true, name: 'image_uris')
-  MTGCardImageURIs imageURIs;
+  MTGCardImageURIs? imageURIs;
 
   @JsonKey(nullable: true)
-  String loyalty;
+  String? loyalty;
 
-  String name;
+  String? name;
 
   @JsonKey(nullable: true, name: 'oracle_text')
-  String oracleText;
+  String? oracleText;
 
   @JsonKey(nullable: true)
-  String power;
+  String? power;
 
   @JsonKey(nullable: true)
-  String toughness;
+  String? toughness;
 
   @JsonKey(nullable: true, name: 'type_line', fromJson: MTGCardTypes.typesFromJson, toJson: MTGCardTypes.typesToJson)
-  MTGCardTypes types;
+  MTGCardTypes? types;
 
   MTGCardFace({this.colorIdentity, this.manaCost, this.imageURIs, this.loyalty,
       this.name, this.oracleText, this.power, this.toughness, this.types});

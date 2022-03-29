@@ -5,15 +5,15 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 
-import 'package:MTGMoe/mtg_db.dart';
-import 'package:MTGMoe/moe_style.dart';
-import 'package:MTGMoe/model/app_state_model.dart';
-import 'package:MTGMoe/tabs/card_grid_consumer_builder.dart';
-import 'package:MTGMoe/model/filter.dart';
-import 'package:MTGMoe/dialogs/filter_dialog.dart';
-import 'package:MTGMoe/model/order.dart';
-import 'package:MTGMoe/dialogs/order_dialog.dart';
-import 'package:MTGMoe/util/type_ahead_textfield.dart';
+import 'package:mtgmoe/mtg_db.dart';
+import 'package:mtgmoe/moe_style.dart';
+import 'package:mtgmoe/model/app_state_model.dart';
+import 'package:mtgmoe/tabs/card_grid_consumer_builder.dart';
+import 'package:mtgmoe/model/filter.dart';
+import 'package:mtgmoe/dialogs/filter_dialog.dart';
+import 'package:mtgmoe/model/order.dart';
+import 'package:mtgmoe/dialogs/order_dialog.dart';
+import 'package:mtgmoe/util/type_ahead_textfield.dart';
 
 class CardsTab extends StatefulWidget {
   @override
@@ -22,8 +22,8 @@ class CardsTab extends StatefulWidget {
 
 class _CardsTabState extends State<CardsTab> {
   TextEditingController searchController = TextEditingController();
-  CardFilter dialogFilter;
-  CardOrder dialogOrder;
+  CardFilter? dialogFilter;
+  CardOrder? dialogOrder;
   PageStorageKey _scrollKey = PageStorageKey('CardsTab');
   ScrollController scrollController = ScrollController(initialScrollOffset: 25);
 
@@ -41,7 +41,7 @@ class _CardsTabState extends State<CardsTab> {
   }
 
   void _filterDialog(AppStateModel model) {
-    dialogFilter = CardFilter.fromFilter(model.filter);
+    dialogFilter = CardFilter.fromFilter(model.filter!);
     showGeneralDialog(
       context: context,
       pageBuilder: (context, animation, secondaryAnimation) => filterWidgetBuilder(context, animation, secondaryAnimation, dialogFilter),
@@ -64,7 +64,7 @@ class _CardsTabState extends State<CardsTab> {
   }
 
   void _sortDialog(AppStateModel model) {
-    dialogOrder = CardOrder.fromOrder(model.order);
+    dialogOrder = CardOrder.fromOrder(model.order!);
     showGeneralDialog(
       context: context,
       pageBuilder: (context, animation, secondaryAnimation) => orderWidgetBuilder(context, animation, secondaryAnimation, dialogOrder),
@@ -88,7 +88,7 @@ class _CardsTabState extends State<CardsTab> {
   @override
   Widget build(BuildContext context) {
     final model = Provider.of<AppStateModel>(context);
-    searchController.text = model.filter.name;
+    searchController.text = model.filter!.name!;
     return SafeArea(
       child: Column(
         children: [
@@ -103,11 +103,11 @@ class _CardsTabState extends State<CardsTab> {
                       searchController, MTGDB.loadNames,
                       (val) {
                         if (val=='') {
-                          setState(() { model.filter.name = searchController.text; });
+                          setState(() { model.filter!.name = searchController.text; });
                         }
                       },
                       () {
-                        setState(() { model.filter.name = searchController.text; });
+                        setState(() { model.filter!.name = searchController.text; });
                         FocusScope.of(context).unfocus();
                       }
                     ),
@@ -152,7 +152,7 @@ class _CardsTabState extends State<CardsTab> {
             future: MTGDB.loadCardIds(filter: model.filter, order: model.order),
             builder: (context, snapshot) {
               Widget tabContent;
-              PageStorageKey scrollKey;
+              PageStorageKey? scrollKey;
               int listLength = 0;
               if (snapshot.connectionState==ConnectionState.waiting) {
                 tabContent = SliverToBoxAdapter(
@@ -165,7 +165,7 @@ class _CardsTabState extends State<CardsTab> {
                 );
               }
               else if (snapshot.connectionState==ConnectionState.done && !snapshot.hasError) {
-                tabContent = cardTabContent(snapshot.data);
+                tabContent = cardTabContent(snapshot.data as dynamic);
                 listLength = (snapshot.data as List<List<String>>).length;
                 scrollKey = _scrollKey;
               }

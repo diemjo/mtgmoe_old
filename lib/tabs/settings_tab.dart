@@ -1,16 +1,14 @@
-import 'dart:convert';
-
-import 'package:MTGMoe/routes/settings_data.dart';
-import 'package:MTGMoe/routes/settings_sets.dart';
-import 'package:MTGMoe/util/settings_row.dart';
+import 'package:mtgmoe/routes/settings_data.dart';
+import 'package:mtgmoe/routes/settings_sets.dart';
+import 'package:mtgmoe/util/settings_row.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 
-import 'package:MTGMoe/moe_style.dart';
-import 'package:MTGMoe/model/app_state_model.dart';
-import 'package:MTGMoe/util/card_update.dart';
+import 'package:mtgmoe/moe_style.dart';
+import 'package:mtgmoe/model/app_state_model.dart';
+import 'package:mtgmoe/util/card_update.dart';
 
 class SettingsTab extends StatefulWidget {
   @override
@@ -43,7 +41,7 @@ class _SettingsTabState extends State<SettingsTab> {
     switch(model.updateStatus) {
       case UpdateStatus.IDLE:
         model.doUpdate = true;
-        model.updateFuture = updateCards(model);
+        model.updateFuture = updateCards(model).then((value) => value as Map<String, Object>);
         break;
       default:
         model.updateStatus = UpdateStatus.IDLE;
@@ -164,10 +162,11 @@ class _SettingsTabState extends State<SettingsTab> {
                 );
               }
               else if (snapshot.hasData) {
+                var data = snapshot.data as dynamic;
                 return Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(snapshot.data['status']=='success' ? 'Successfully updated' : snapshot.data['status'] == 'cancel' ? 'Update cancelled' : 'error updating: ${snapshot.data['error']}')
+                    Text(data['status']=='success' ? 'Successfully updated' : data['status'] == 'cancel' ? 'Update cancelled' : 'error updating: ${data['error']}')
                   ],
                 );
               }
@@ -186,7 +185,7 @@ class _SettingsTabState extends State<SettingsTab> {
                       children: [
                         Padding(
                           padding: const EdgeInsets.all(8.0),
-                          child: Text('Downloading cards' + (model.updateProgress!=null ? ': ${model.updateProgress}' : '')),
+                          child: Text('Downloading cards: ${model.updateProgress}'),
                         ),
                       ],
                     );

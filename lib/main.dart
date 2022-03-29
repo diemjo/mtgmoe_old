@@ -6,11 +6,11 @@ import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:MTGMoe/moe_style.dart';
-import 'package:MTGMoe/model/app_state_model.dart';
-import 'package:MTGMoe/tabs/card_list_tab.dart';
-import 'package:MTGMoe/tabs/home_tab.dart';
-import 'package:MTGMoe/tabs/settings_tab.dart';
+import 'package:mtgmoe/moe_style.dart';
+import 'package:mtgmoe/model/app_state_model.dart';
+import 'package:mtgmoe/tabs/card_list_tab.dart';
+import 'package:mtgmoe/tabs/home_tab.dart';
+import 'package:mtgmoe/tabs/settings_tab.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -111,29 +111,29 @@ class LandingPage extends StatefulWidget {
 
 class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin{
 
-  PlatformTabController _platformTabController;
-  TabController _tabController;
+  PlatformTabController? _platformTabController;
+  TabController? _tabController;
 
-  AnimationController rotationController;
+  AnimationController? rotationController;
 
   List<BottomNavigationBarItem> _items(BuildContext context) {
     return [
       BottomNavigationBarItem(
-          title: Text('Home'),
+          label: 'Home',
           icon: Icon(Icons.home,
               color: MoeStyle.navigationBarIconColor),
           activeIcon: Icon(Icons.home,
               color: MoeStyle.navigationBarIconColorActive)
       ),
       BottomNavigationBarItem(
-          title: Text('Cards'),
+          label: 'Cards',
           icon: Icon(Icons.collections,
               color: MoeStyle.navigationBarIconColor),
           activeIcon: Icon(Icons.collections,
               color: MoeStyle.navigationBarIconColorActive)
       ),
       BottomNavigationBarItem(
-        title: Text('Settings'),
+        label: 'Settings',
         icon: settingsAnimationWrap(
             context: context,
             child: Icon(Icons.settings, color: MoeStyle.navigationBarIconColor)),
@@ -145,19 +145,19 @@ class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin
     ];
   }
 
-  Widget settingsAnimationWrap({@required BuildContext context, @required Widget child}) {
+  Widget settingsAnimationWrap({required BuildContext context, required Widget child}) {
     if (rotationController != null && Provider.of<AppStateModel>(context).updateStatus!=UpdateStatus.IDLE) {
       return AnimatedBuilder(
-        animation: rotationController,
+        animation: rotationController!,
         child: child,
-        builder: (context, child) => Transform.rotate(angle: rotationController.value, child: child),
+        builder: (context, child) => Transform.rotate(angle: rotationController!.value, child: child),
       );
     } else {
       return child;
     }
   }
 
-  Widget _contentBuilder(BuildContext context, int index) {
+  Widget? _contentBuilder(BuildContext context, int index) {
     switch (index) {
       case 0: return HomeTab();
       case 1: return CardsTab();
@@ -182,28 +182,28 @@ class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin
     }
     if (rotationController == null) {
       rotationController = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
-      rotationController.repeat();
+      rotationController!.repeat();
     }
   }
 
 
   @override
   void dispose() {
-    rotationController.dispose();
+    rotationController!.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _contentBuilder(context, _tabController.index),
+      body: _contentBuilder(context, _tabController!.index),
       bottomNavigationBar: BottomAppBar(
         child: BottomNavigationBar(
           selectedItemColor: MoeStyle.defaultDecorationColor,
-          currentIndex: _tabController.index,
+          currentIndex: _tabController!.index,
           onTap: (value) {
               setState(() {
-                _tabController.index = value;
+                _tabController!.index = value;
               });
           },
           items: _items(context),
@@ -213,7 +213,7 @@ class _LandingPageState extends State<LandingPage> with TickerProviderStateMixin
     return PlatformTabScaffold(
       iosContentPadding: true,
       tabController: _platformTabController,
-      bodyBuilder: _contentBuilder,
+      bodyBuilder: _contentBuilder as Widget Function(BuildContext, int)?,
       items: _items(context),
       pageBackgroundColor: MoeStyle.defaultAppColor,
       materialTabs: (context, platform) {

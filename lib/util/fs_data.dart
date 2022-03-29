@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:MTGMoe/mtg_db.dart';
+import 'package:mtgmoe/mtg_db.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';

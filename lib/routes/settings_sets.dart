@@ -1,6 +1,6 @@
-import 'package:MTGMoe/moe_style.dart';
-import 'package:MTGMoe/util/card_set_prefs.dart';
-import 'package:MTGMoe/util/settings_row.dart';
+import 'package:mtgmoe/moe_style.dart';
+import 'package:mtgmoe/util/card_set_prefs.dart';
+import 'package:mtgmoe/util/settings_row.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
@@ -12,7 +12,7 @@ class SettingsSetTypes extends StatefulWidget {
 }
 
 class _SettingsSetTypesState extends State<SettingsSetTypes> {
-  Future<Map<String, bool>> setTypes;
+  Future<Map<String?, bool?>>? setTypes;
 
   _SettingsSetTypesState() {
     setTypes =  getPrefsSetTypes();
@@ -43,7 +43,7 @@ class _SettingsSetTypesState extends State<SettingsSetTypes> {
                 return Container();
               }
               else if (snapshot.connectionState==ConnectionState.done){
-                return _buildSetTypeSettings(snapshot.data);
+                return _buildSetTypeSettings(snapshot.data as Map<String, bool>);
               }
               else {
                 print(snapshot.connectionState);

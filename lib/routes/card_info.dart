@@ -6,13 +6,13 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_platform_widgets/flutter_platform_widgets.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
-import 'package:MTGMoe/moe_style.dart';
-import 'package:MTGMoe/mtg_db.dart';
-import 'package:MTGMoe/tabs/card_grid_consumer_builder.dart';
-import 'package:MTGMoe/model/card/mtg_card.dart';
-import 'package:MTGMoe/model/card/mtg_card_face.dart';
-import 'package:MTGMoe/model/card/mtg_set.dart';
-import 'package:MTGMoe/util/extensions.dart';
+import 'package:mtgmoe/moe_style.dart';
+import 'package:mtgmoe/mtg_db.dart';
+import 'package:mtgmoe/tabs/card_grid_consumer_builder.dart';
+import 'package:mtgmoe/model/card/mtg_card.dart';
+import 'package:mtgmoe/model/card/mtg_card_face.dart';
+import 'package:mtgmoe/model/card/mtg_set.dart';
+import 'package:mtgmoe/util/extensions.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:share/share.dart';
@@ -21,7 +21,7 @@ import 'package:share/share.dart';
 class CardInfo extends StatefulWidget {
   final String cardId, cardName;
 
-  CardInfo({@required this.cardId,@required this.cardName});
+  CardInfo({required this.cardId,required this.cardName});
 
   @override
   _CardInfoState createState() => _CardInfoState(cardId: cardId, cardName: cardName);
@@ -30,9 +30,9 @@ class CardInfo extends StatefulWidget {
 class _CardInfoState extends State<CardInfo> {
   String cardId, cardName;
 
-  _CardInfoState({@required this.cardId, @required this.cardName});
+  _CardInfoState({required this.cardId, required this.cardName});
 
-  Future<MTGCard> card;
+  late Future<MTGCard?> card;
 
   @override
   void initState() {
@@ -59,7 +59,7 @@ class _CardInfoState extends State<CardInfo> {
                       PopupMenuItem<String>(child: Text((snapshot.data as MTGCard).imageURIs==null ? 'Share Images' : 'Share Image'), value: 'image'),
                       PopupMenuItem<String>(child: Text('Share URL'), value: 'url'),
                     ],
-                    onSelected: (value) { print(value); onMenuItemSelected(value, snapshot.data as MTGCard); },
+                    onSelected: (dynamic value) { print(value); onMenuItemSelected(value, snapshot.data as MTGCard?); },
                     icon: Icon(PlatformIcons(context).share),
                     enabled: true,
                   );
@@ -130,19 +130,19 @@ class _CardInfoState extends State<CardInfo> {
     List<Widget> items = [];
     items.add(cardInfoEntry('NAME', textWithPadding(card.name), top: true));
     items.add(cardInfoEntry('SET', setName(card.setCode)));
-    if (card.cardFaces?.atOrNull(0)?.types==null && card.types!=null)
+    if (card.cardFaces?.atOrNull(0)?.types==null)
       items.add(cardInfoEntry('TYPE', textWithPadding(card.types.toJsonString())));
     if (card.cardFaces?.atOrNull(0)?.colorIdentity==null && card.colorIdentity!=null)
       items.add(cardInfoEntry('COLORS', colorInfo(card.colorIdentity)));
     if (card.oracleText!=null && card.oracleText!='')
-      items.add(cardInfoEntry('TEXT', textWithPadding(card.oracleText)));
+      items.add(cardInfoEntry('TEXT', textWithPadding(card.oracleText!)));
     if (card.power!=null && card.toughness!=null)
       items.add(cardInfoEntry('POWER / TOUGHNESS', textWithPadding('${card.power} / ${card.toughness}')));
 
-    if (card.cardFaces!=null && card.cardFaces.length>1) {
-      List<Widget> frontItems = itemsForCardFace(card.cardFaces[0]);
+    if (card.cardFaces!=null && card.cardFaces!.length>1) {
+      List<Widget> frontItems = itemsForCardFace(card.cardFaces![0]);
 
-      List<Widget> backItems = itemsForCardFace(card.cardFaces[1]);
+      List<Widget> backItems = itemsForCardFace(card.cardFaces![1]);
 
       items.add(ExpansionTile(
         title: textWithPadding('FRONT', style: MoeStyle.smallText),
@@ -167,18 +167,18 @@ class _CardInfoState extends State<CardInfo> {
 
   List<Widget> itemsForCardFace(MTGCardFace face) {
     List<Widget> items = [];
-    items.add(cardInfoEntry('NAME', textWithPadding(face.name), top: true));
-    items.add(cardInfoEntry('TYPE', textWithPadding(face.types.toJsonString())));
+    items.add(cardInfoEntry('NAME', textWithPadding(face.name!), top: true));
+    items.add(cardInfoEntry('TYPE', textWithPadding(face.types!.toJsonString())));
     if (face.colorIdentity!=null)
       items.add(cardInfoEntry('COLORS', colorInfo(face.colorIdentity)));
     if (face.oracleText!=null && face.oracleText!='')
-      items.add(cardInfoEntry('TEXT', textWithPadding(face.oracleText)));
+      items.add(cardInfoEntry('TEXT', textWithPadding(face.oracleText!)));
     if (face.power!=null && face.toughness!=null)
       items.add(cardInfoEntry('POWER / TOUGHNESS', textWithPadding('${face.power} / ${face.toughness}')));
     return items;
   }
 
-  Widget colorInfo(List<String> colorIdentity) {
+  Widget colorInfo(List<String>? colorIdentity) {
     List<Widget> icons = [];
     Map<String, Color> colors = {
       'G': MoeStyle.forestColor,
@@ -188,7 +188,7 @@ class _CardInfoState extends State<CardInfo> {
       'R': MoeStyle.mountainColor,
     };
     for (String color in colors.keys) {
-      if (colorIdentity.contains(color))
+      if (colorIdentity!.contains(color))
         icons.add(Container(
           margin: const EdgeInsets.all(5.0),
           width: 25,
@@ -210,19 +210,19 @@ class _CardInfoState extends State<CardInfo> {
     );
   }
   
-  Widget textWithPadding(String text, {TextStyle style}) {
+  Widget textWithPadding(String text, {TextStyle? style}) {
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Align(alignment: Alignment.centerLeft, child: SelectableText(text, style: style)),
     );
   }
 
-  Widget setName(String setCode) {
+  Widget setName(String? setCode) {
     return FutureBuilder(
       future: MTGDB.setFromCode(setCode),
       builder: (context, snapshot) {
         if (snapshot.hasData) {
-          MTGSet set = snapshot.data;
+          MTGSet set = snapshot.data as MTGSet;
           return Row(
             children: [
               Container(
@@ -236,7 +236,7 @@ class _CardInfoState extends State<CardInfo> {
           );
         }
         else {
-          return textWithPadding(setCode);
+          return textWithPadding(setCode!);
         }
       },
     );
@@ -274,20 +274,20 @@ class _CardInfoState extends State<CardInfo> {
     }
   }
 
-  void onMenuItemSelected(String value, MTGCard card) async {
+  void onMenuItemSelected(String value, MTGCard? card) async {
     switch (value) {
       case 'image':
-        shareImages(card, card.imageURIs==null);
+        shareImages(card!, card.imageURIs==null);
         break;
       case 'url':
-        shareURL(card.scryfallURI);
+        shareURL(card!.scryfallURI);
         break;
       default:
     }
   }
 
   void shareImages(MTGCard card, bool two) async {
-    String cardId = card.id;
+    String? cardId = card.id;
     String dirPath = (await getApplicationDocumentsDirectory()).path;
     List<String> paths = [];
     if (two) {
@@ -310,7 +310,7 @@ class _CardInfoState extends State<CardInfo> {
     Share.shareFiles(paths, text: cardName);
   }
 
-  void shareURL(String url) {
+  void shareURL(String? url) {
     print('sharing: $url ($cardName)');
     Share.share('$cardName\n$url', subject: cardName);
   }
